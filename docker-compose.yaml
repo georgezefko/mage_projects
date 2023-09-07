@@ -1,0 +1,9 @@
+version: '3'
+services:
+  alsense:
+    image: mage
+    ports:
+      - "6789:6789"
+    volumes:
+      - .:/home/src
+    
