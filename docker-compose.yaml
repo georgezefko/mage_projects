@@ -1,0 +1,126 @@
+version: '3'
+services:
+  mage:
+    image: mage
+    container_name: mage 
+    ports:
+      - "6789:6789"
+    volumes:
+      - .:/home/mage_code
+    environment:
+    #To avoid adding too many variables here consider using
+    #-.env instead where you define what variables you need
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ENV: ${ENV}
+      LOG_LEVEL: ${LOG_LEVEL}
+      KAFKA_SCHEMA_REGISTRY: ${KAFKA_SCHEMA_REGISTRY}
+      SCHEMA_REGISTRY_USERNAME: ${SCHEMA_REGISTRY_USERNAME}
+      SCHEMA_REGISTRY_PASSWORD: ${SCHEMA_REGISTRY_PASSWORD}
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID}
+      KAFKA_CLIENT_ID_BATCH: ${KAFKA_CLIENT_ID_BATCH}
+      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID}
+      KAFKA_GROUP_ID_BATCH: ${KAFKA_GROUP_ID_BATCH}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      KAFKA_BATCH_TOPIC: ${KAFKA_BATCH_TOPIC}
+      KAFKA_STREAM_TOPIC: ${KAFKA_STREAM_TOPIC}
+    
+  zookeeper:
+      image: confluentinc/cp-zookeeper:latest
+      container_name: zookeeper
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
+      ports:
+        - "2181:2181"
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:latest
+    hostname: schema-registry
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9093,PLAINTEXT_INTERNAL://localhost:9092
+      SCHEMA_REGISTRY_DEBUG: 'true'
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - "9092:9092"
+    expose:
+      - "9093"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9093,PLAINTEXT_INTERNAL://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  
+  postgres:
+    image: debezium/postgres:15
+    container_name: postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+  
+  starrocks-fe-0:
+    image: starrocks/fe-ubuntu:latest
+    hostname: starrocks-fe-0
+    container_name: starrocks-fe-0
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /opt/starrocks/fe_entrypoint.sh starrocks-fe-0
+    environment:
+      - HOST_TYPE=FQDN
+      - TZ=Asia/Shanghai
+    ports:
+      - "8030:8030"
+      - "9020:9020"
+      - "9030:9030"
+    volumes:
+       - singleton_fe0_data:/opt/starrocks/fe/meta
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9030"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  starrocks-be-0:
+    image: starrocks/be-ubuntu:latest
+    hostname: starrocks-be-0
+    container_name: starrocks-be-0
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /opt/starrocks/be_entrypoint.sh starrocks-fe-0
+    environment:
+      - HOST_TYPE=FQDN
+      - TZ=Asia/Shanghai
+    ports:
+      - "8040:8040"
+    depends_on:
+      - starrocks-fe-0
+    volumes:
+      - singleton_be0_data:/opt/starrocks/be/storage
+
+volumes:
+  singleton_fe0_data:
+  singleton_be0_data:

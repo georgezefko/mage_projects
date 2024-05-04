@@ -1,0 +1,104 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - usergen
+  - kafkaproducer
+  - kafkaproducerb
+  - teststreaming
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: FakeGen
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks: []
+  uuid: fakegen
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: KafkaProducer
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - fakegen
+  uuid: kafkaproducer
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: KafkaProducerB
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - fakegen
+  uuid: kafkaproducerb
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: UserGen
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - fakegen
+  uuid: usergen
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: testStreaming
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - fakegen
+  uuid: teststreaming
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2023-09-07 20:22:32.901964+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: delicate frog
+notification_config: {}
+retry_config: {}
+run_pipeline_in_one_process: false
+spark_config: {}
+tags: []
+type: python
+updated_at: '2023-09-10 20:13:21'
+uuid: delicate_frog
+widgets: []
