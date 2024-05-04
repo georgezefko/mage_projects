@@ -1,5 +1,6 @@
 FROM mageai/mageai:latest
 
+
 ARG PROJECT_NAME=mage
 ARG MAGE_CODE_PATH=/home/mage_code
 ARG USER_CODE_PATH=${MAGE_CODE_PATH}/${PROJECT_NAME}

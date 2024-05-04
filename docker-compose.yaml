@@ -6,7 +6,26 @@ services:
     ports:
       - "6789:6789"
     volumes:
-      - .:/home/src
+      - .:/home/mage_code
+    environment:
+    #To avoid adding too many variables here consider using
+    #-.env instead where you define what variables you need
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ENV: ${ENV}
+      LOG_LEVEL: ${LOG_LEVEL}
+      KAFKA_SCHEMA_REGISTRY: ${KAFKA_SCHEMA_REGISTRY}
+      SCHEMA_REGISTRY_USERNAME: ${SCHEMA_REGISTRY_USERNAME}
+      SCHEMA_REGISTRY_PASSWORD: ${SCHEMA_REGISTRY_PASSWORD}
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID}
+      KAFKA_CLIENT_ID_BATCH: ${KAFKA_CLIENT_ID_BATCH}
+      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID}
+      KAFKA_GROUP_ID_BATCH: ${KAFKA_GROUP_ID_BATCH}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      KAFKA_BATCH_TOPIC: ${KAFKA_BATCH_TOPIC}
+      KAFKA_STREAM_TOPIC: ${KAFKA_STREAM_TOPIC}
     
   zookeeper:
       image: confluentinc/cp-zookeeper:latest
@@ -51,10 +70,57 @@ services:
     container_name: postgres
     hostname: postgres
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+  
+  starrocks-fe-0:
+    image: starrocks/fe-ubuntu:latest
+    hostname: starrocks-fe-0
+    container_name: starrocks-fe-0
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /opt/starrocks/fe_entrypoint.sh starrocks-fe-0
+    environment:
+      - HOST_TYPE=FQDN
+      - TZ=Asia/Shanghai
+    ports:
+      - "8030:8030"
+      - "9020:9020"
+      - "9030:9030"
+    volumes:
+       - singleton_fe0_data:/opt/starrocks/fe/meta
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9030"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  starrocks-be-0:
+    image: starrocks/be-ubuntu:latest
+    hostname: starrocks-be-0
+    container_name: starrocks-be-0
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /opt/starrocks/be_entrypoint.sh starrocks-fe-0
+    environment:
+      - HOST_TYPE=FQDN
+      - TZ=Asia/Shanghai
+    ports:
+      - "8040:8040"
+    depends_on:
+      - starrocks-fe-0
+    volumes:
+      - singleton_be0_data:/opt/starrocks/be/storage
+
+volumes:
+  singleton_fe0_data:
+  singleton_be0_data:

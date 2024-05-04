@@ -1,0 +1,41 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: streamingProducer_fakeData
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks: []
+  uuid: streamingproducer_fakedata
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-04-27 11:47:41.463669+00:00'
+data_integration: null
+description: fake data producer
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: streamingProducer
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- medium article
+type: python
+uuid: streamingproducer
+variables_dir: /home/src/mage_data/mage
+widgets: []
