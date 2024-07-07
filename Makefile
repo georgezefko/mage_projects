@@ -23,9 +23,9 @@ rebuild: build down up
 logs:
 	docker-compose -f $(COMPOSE_FILE) logs
 
-# Connect to the alsense container
+# Connect to the mage container
 exec:
-	docker exec -it alsense /bin/bash
+	docker exec -it mage /bin/bash
 
 # Open the browser
 browse:
