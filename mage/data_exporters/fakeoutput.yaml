@@ -1,8 +1,0 @@
-connector_type: postgres
-database: postgres
-host: postgres
-password: postgres
-port: 5432
-schema: commerce
-username: postgres
-table: attributed_checkouts
