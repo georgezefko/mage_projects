@@ -1,48 +1,51 @@
 blocks:
 - all_upstream_blocks_executed: true
-  color: null
-  configuration: {}
+  color: teal
+  configuration:
+    file_path: custom/iceberg_demo_write.py
+    file_source:
+      path: custom/iceberg_demo_write.py
   downstream_blocks:
-  - hopeful_alchemist
+  - iceberg_demo_read
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: blue prophecy
+  name: iceberg_demo_write
   retry_config: null
   status: updated
   timeout: null
-  type: data_loader
+  type: custom
   upstream_blocks: []
-  uuid: blue_prophecy
+  uuid: iceberg_demo_write
 - all_upstream_blocks_executed: false
-  color: null
+  color: teal
   configuration: {}
   downstream_blocks: []
   executor_config: null
-  executor_type: local_python
+  executor_type: pyspark
   has_callback: false
-  language: yaml
-  name: hopeful alchemist
-  retry_config: null
-  status: not_executed
+  language: python
+  name: iceberg-demo-read
+  retry_config: {}
+  status: updated
   timeout: null
-  type: data_exporter
+  type: custom
   upstream_blocks:
-  - blue_prophecy
-  uuid: hopeful_alchemist
+  - iceberg_demo_write
+  uuid: iceberg_demo_read
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
 conditionals: []
-created_at: '2024-05-02 20:28:01.387298+00:00'
+created_at: '2024-05-04 16:09:34.402249+00:00'
 data_integration: null
-description: quix streams
+description: Spark pipeline
 executor_config: {}
 executor_count: 1
 executor_type: null
 extensions: {}
-name: sftreamingconsumer
+name: Spark_tutorial_iceberg
 notification_config: {}
 remote_variables_dir: null
 retry_config: {}
@@ -50,8 +53,10 @@ run_pipeline_in_one_process: false
 settings:
   triggers: null
 spark_config: {}
-tags: []
-type: streaming
-uuid: sftreamingconsumer
+tags:
+- spark
+- data lake
+type: python
+uuid: spark_tutorial_iceberg
 variables_dir: /home/src/mage_data/mage
 widgets: []
