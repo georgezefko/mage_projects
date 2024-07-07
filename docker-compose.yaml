@@ -92,8 +92,8 @@ services:
     environment:
       - HOST_TYPE=FQDN
       - TZ=Asia/Shanghai
-      - AWS_ACCESS_KEY_ID=zefko
-      - AWS_SECRET_ACCESS_KEY=sparkTutorial
+      - AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
     ports:
       - "8030:8030"
       - "9020:9020"

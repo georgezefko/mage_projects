@@ -21,16 +21,25 @@ emr_config:
 
 spark_config:
   # Application name
-  app_name: 'my spark app'
+  app_name: 'MageSparkSession'
   # Master URL to connect to
   # e.g., spark_master: 'spark://host:port', or spark_master: 'yarn'
-  spark_master: 'local'
+  spark_master: "local"
   # Executor environment variables
   # e.g., executor_env: {'PYTHONPATH': '/home/path'}
   executor_env: {}
   # Jar files to be uploaded to the cluster and added to the classpath
   # e.g., spark_jars: ['/home/path/example1.jar']
-  spark_jars: []
+  spark_jars: [
+    #delta
+    '/home/mage_code/mage/spark-config/hadoop-aws-3.3.4.jar', 
+    '/home/mage_code/mage/spark-config/aws-java-sdk-bundle-1.12.262.jar',
+    '/home/mage_code/mage/spark-config/delta-storage-2.4.0.jar',
+    '/home/mage_code/mage/spark-config/delta-core_2.12-2.4.0.jar',
+    #iceberg
+    '/home/mage_code/mage/spark-config/bundle-2.26.15.jar',
+    '/home/mage_code/mage/spark-config/url-connection-client-2.26.15.jar',
+    '/home/mage_code/mage/spark-config/iceberg-spark-runtime-3.5_2.12-1.5.2.jar',]
   # Path where Spark is installed on worker nodes,
   # e.g. spark_home: '/usr/lib/spark'
   spark_home:

@@ -6,15 +6,18 @@ from minio import Minio
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from mage.utils.spark_session_factory import get_spark_session
+import os
 
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
 # Initialize Spark session and MinIO client
 iceberg_spark_session = get_spark_session(
     "iceberg",
     app_name="MageSparkSession",
     warehouse_path="s3a://iceberg-demo-bucket/warehouse",
     s3_endpoint="http://minio:9000",
-    s3_access_key="zefko",
-    s3_secret_key="sparkTutorial"
+    s3_access_key=MINIO_ACCESS_KEY,
+    s3_secret_key=MINIO_SECRET_KEY
 )
 
 

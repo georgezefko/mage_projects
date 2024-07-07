@@ -19,17 +19,21 @@ def stop_existing_spark_session():
 
 stop_existing_spark_session()
 
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
+
+
 delta_spark_session = get_spark_session(
     "delta",
-    app_name="MageSparkSession",
-    s3_endpoint="http://minio:9000",
-    s3_access_key="zefko",
-    s3_secret_key="sparkTutorial"
+    app_name = "MageSparkSession",
+    s3_endpoint = "http://minio:9000",
+    s3_access_key = MINIO_ACCESS_KEY,
+    s3_secret_key = MINIO_SECRET_KEY
 )
 client = Minio(
     "minio:9000",
-    access_key="zefko",
-    secret_key="sparkTutorial",
+    access_key = MINIO_ACCESS_KEY,
+    secret_key = MINIO_SECRET_KEY,
     secure=False
 )
 

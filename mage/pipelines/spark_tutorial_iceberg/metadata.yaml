@@ -13,12 +13,12 @@ blocks:
   language: python
   name: iceberg_demo_write
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: custom
   upstream_blocks: []
   uuid: iceberg_demo_write
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: teal
   configuration: {}
   downstream_blocks: []
@@ -28,7 +28,7 @@ blocks:
   language: python
   name: iceberg-demo-read
   retry_config: {}
-  status: updated
+  status: executed
   timeout: null
   type: custom
   upstream_blocks:
