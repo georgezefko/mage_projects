@@ -14,3 +14,5 @@ mage-ai.db
 mage_data/
 secrets/
 .pytest_cache
+minio_data/
+spark-config/

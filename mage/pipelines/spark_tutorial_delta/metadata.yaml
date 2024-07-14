@@ -1,0 +1,59 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    file_source:
+      path: custom/delta_table_write.py
+  downstream_blocks:
+  - delta_table_read
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: delta_table_write
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks: []
+  uuid: delta_table_write
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: delta_table_read
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - delta_table_write
+  uuid: delta_table_read
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-07-07 14:03:45.087071+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: spark_tutorial_delta
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags: []
+type: python
+uuid: spark_tutorial_delta
+variables_dir: /home/src/mage_data/mage
+widgets: []
