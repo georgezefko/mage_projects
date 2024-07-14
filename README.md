@@ -18,4 +18,6 @@ To get full understanding of how to build the repository from scratch you can ch
 
 In the first tutorial/project, I guide you through building the repository using Mage as the main orchestrator. We will leverage various technologies to create your local data lake with Iceberg and query your data using StarRocks.
 
+You can find the relevant article with a detailed guide here: [Medium blog](https://medium.com/data-engineer-things/building-a-local-data-lake-from-scratch-with-minio-iceberg-spark-starrocks-mage-and-docker-c12436e6ff9d)
+
 The isolated code for that project is here: [SparkDataLake](https://github.com/georgezefko/mage_projects/tree/feat/sparkDataLake)
