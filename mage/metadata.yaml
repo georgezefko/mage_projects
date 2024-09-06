@@ -39,7 +39,10 @@ spark_config:
     #iceberg
     '/home/mage_code/mage/spark-config/bundle-2.26.15.jar',
     '/home/mage_code/mage/spark-config/url-connection-client-2.26.15.jar',
-    '/home/mage_code/mage/spark-config/iceberg-spark-runtime-3.5_2.12-1.5.2.jar',]
+    '/home/mage_code/mage/spark-config/iceberg-spark-runtime-3.5_2.12-1.5.2.jar',
+    #nessie
+    '/home/mage_code/mage/spark-config/nessie-spark-extensions-3.5_2.12-0.91.3.jar'
+    ]
   # Path where Spark is installed on worker nodes,
   # e.g. spark_home: '/usr/lib/spark'
   spark_home:

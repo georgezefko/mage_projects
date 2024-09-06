@@ -5,8 +5,10 @@ fastavro
 avro-python3
 starrocks
 quixstreams
-pyspark==3.4.0
+#pyspark==3.4.0
 minio
-delta-spark==2.4.0
+#delta-spark==2.4.0
 PyDrive
 boto3
+pynessie
+pyiceberg[glue,s3fs,duckdb,pyarrow]
