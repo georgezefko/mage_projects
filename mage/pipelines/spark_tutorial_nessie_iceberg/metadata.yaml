@@ -1,19 +1,21 @@
 blocks:
 - all_upstream_blocks_executed: true
-  color: grey
-  configuration: {}
+  color: teal
+  configuration:
+    file_source:
+      path: custom/demo_iceberg_nessie_spark_write.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: demo_iceberg_nessie_write
+  name: demo_iceberg_nessie_spark_write
   retry_config: null
   status: failed
   timeout: null
   type: custom
   upstream_blocks: []
-  uuid: demo_iceberg_nessie_write
+  uuid: demo_iceberg_nessie_spark_write
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

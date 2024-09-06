@@ -1,40 +1,17 @@
-from pandas import DataFrame
-import io
-import pandas as pd
-import requests
-from minio import Minio
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
 import os
-from mage.utils.spark_session_factory import get_spark_session
-
-
-# Function to stop any existing Spark session
-def stop_existing_spark_session():
-    try:
-        existing_spark = SparkSession.builder.getOrCreate()
-        if existing_spark:
-            existing_spark.stop()
-    except Exception as e:
-        print(f"No existing Spark session to stop: {e}")
-
-stop_existing_spark_session()
-
+import pandas as pd
+from minio import Minio
+from pyiceberg.catalog import load_catalog
+from pyiceberg.schema import Schema
+from pyiceberg.types import IntegerType, StringType
+from pynessie import init as nessie_init
+# Set environment variables for MinIO access keys
 MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
-NESSIE_URI = 'http://nessie:19120/api/v1'
+from mage.utils.monkey_patch import monkey_patch
+from mage.utils.pyiceberg_patch_nessie import NessieCatalog
 
-
-iceberg_spark_session = get_spark_session(
-    "nessie",
-    app_name="MageSparkSession",
-    warehouse_path="s3a://iceberg-demo-bucket-nessie/warehouse",
-    s3_endpoint="http://minio:9000",
-    s3_access_key=MINIO_ACCESS_KEY,
-    s3_secret_key=MINIO_SECRET_KEY,
-    nessie_uri = NESSIE_URI,
-    aws_region = 'us-east-1'
-)
+# Initialize MinIO client
 client = Minio(
     "minio:9000",
     access_key=MINIO_ACCESS_KEY,
@@ -42,52 +19,76 @@ client = Minio(
     secure=False
 )
 
+# Create a bucket if it doesn't exist
 minio_bucket = "iceberg-demo-bucket-nessie"
-found = client.bucket_exists(minio_bucket)
-if not found:
+if not client.bucket_exists(minio_bucket):
     client.make_bucket(minio_bucket)
 
+
+
+# Create a new branch in Nessie
+try:
+    nessie_client = nessie_init("http://nessie:19120/api/v1")
+    # Try to perform a simple operation
+    branches = nessie_client.list_branches()
+    print("Successfully connected to Nessie. Branches:", branches)
+except Exception as e:
+    print("Failed to connect to Nessie:", str(e))
+
+
+# Define Iceberg schema
+# schema = Schema(
+#     IntegerType().field("id"),
+#     StringType().field("description"),
+#     StringType().field("reviews"),
+#     StringType().field("bedrooms"),
+#     StringType().field("beds"),
+#     StringType().field("baths")
+# )
+print('pass 1')
+# Initialize Iceberg catalog
+catalog = load_catalog(
+    "nessie",
+    **{"uri":"http://nessie:19120/api/v1",
+    "warehouse":"s3a://iceberg-demo-bucket-nessie/warehouse",
+    
+        "endpoint": "http://minio:9000",
+        "access_key_id": MINIO_ACCESS_KEY,
+        "secret_access_key": MINIO_SECRET_KEY,
+        "path_style_access": "true"
+    }
+)
+print('pass 2')
+
+# Function to process CSV files and write to Iceberg
 @custom
-def iceberg_table_write(*args, **kwargs):
-    data_folder = "mage/data"  # Adjust this path according to your directory structure
-    for filename in os.listdir(data_folder):
-        if filename.endswith(".csv"):
-            file_path = os.path.join(data_folder, filename)
+def process_and_write_to_iceberg(*args, **kwargs):
+    # data_folder = "mage/data"
+    # for filename in os.listdir(data_folder):
+    #     if filename.endswith(".csv"):
+    #         file_path = os.path.join(data_folder, filename)
             
-            # Read the CSV file into a Spark DataFrame
-            df = iceberg_spark_session.spark.read.csv(file_path, header=True, inferSchema=True)
-            # Define the table name
-            table_name = f"iceberg_demo_{os.path.splitext(os.path.basename(file_path))[0]}"
+    #         # Read the CSV file into a Pandas DataFrame
+    #         df = pd.read_csv(file_path)
             
-            if table_name.split('_')[-1] == 'listings':
-                print('process listings')
-                split_cols = F.split(df['name'], '·')
-     
-                is_review_present = F.trim(split_cols.getItem(1)).startswith('★')
-
-                # Extract, clean and assign new columns
-                df = df.withColumn('description', F.trim(split_cols.getItem(0))) \
-                        .withColumn('reviews', F.when(is_review_present, F.trim(F.regexp_replace(split_cols.getItem(1), '★', ''))).otherwise(None)) \
-                        .withColumn('bedrooms', F.when(is_review_present, F.trim(split_cols.getItem(2))).otherwise(F.trim(split_cols.getItem(1)))) \
-                        .withColumn('beds', F.when(is_review_present, F.trim(split_cols.getItem(3))).otherwise(F.trim(split_cols.getItem(2)))) \
-                        .withColumn('baths', F.when(is_review_present, F.trim(split_cols.getItem(4))).otherwise(F.trim(split_cols.getItem(3))))
-                    
-                df = df.drop('name', 'neighbourhood_group', 'license')
+    #         # Data processing similar to Spark script
+    #         if 'listings' in filename:
+    #             split_cols = df['name'].str.split('·', expand=True)
+    #             df['description'] = split_cols[0].str.strip()
+    #             df['reviews'] = split_cols[1].str.strip().str.replace('★', '', regex=False).where(split_cols[1].str.strip().str.startswith('★'))
+    #             df['bedrooms'] = split_cols[2].str.strip().where(split_cols[1].str.strip().str.startswith('★'), split_cols[1].str.strip())
+    #             df['beds'] = split_cols[3].str.strip().where(split_cols[1].str.strip().str.startswith('★'), split_cols[2].str.strip())
+    #             df['baths'] = split_cols[4].str.strip().where(split_cols[1].str.strip().str.startswith('★'), split_cols[3].str.strip())
+    #             df.drop(columns=['name', 'neighbourhood_group', 'license'], inplace=True)
             
-            # Create or replace the Iceberg table
-            if iceberg_spark_session.spark._jsparkSession.catalog().tableExists(table_name):
-                df.writeTo(f"nessie.{table_name}").overwrite()
-            else:
-                df.writeTo(f"nessie.{table_name}").create()
-
+    #         # Convert Pandas DataFrame to Iceberg table format
+            
+    #         table_name = f"iceberg_demo.{os.path.splitext(filename)[0]}"
+            
+    #         if not catalog.table_exists(table_name):
+    #             catalog.create_table(table_name, schema=schema, properties={"format-version": "2"})
+            
+    #         table = catalog.load_table(table_name)
+    #         table.append(df)
+            
     return "Iceberg tables created successfully"
-          
-  
-
-
-@test
-def test_output(output, *args) -> None:
-    """
-    Template code for testing the output of the block.
-    """
-    assert output is not None, 'The output is undefined'

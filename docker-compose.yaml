@@ -28,7 +28,8 @@ services:
       KAFKA_STREAM_TOPIC: ${KAFKA_STREAM_TOPIC}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-  
+    networks:
+      - nessie_network
 
   dremio:
     platform: linux/x86_64
@@ -38,12 +39,26 @@ services:
       - 31010:31010
       - 32010:32010
     container_name: dremio
+    networks:
+      - nessie_network
         
   nessie:
-    image: projectnessie/nessie
+    image: ghcr.io/projectnessie/nessie:0.94.4
     container_name: nessie
     ports:
       - "19120:19120"
+    environment:
+      - nessie.catalog.default-warehouse=warehouse
+      - nessie.catalog.warehouses.warehouse.location=s3://iceberg-demo-nessie/
+      - nessie.catalog.service.s3.default-options.region=us-east-1
+      - nessie.catalog.service.s3.default-options.path-style-access=true
+      - nessie.catalog.service.s3.default-options.access-key.name=${MINIO_ACCESS_KEY}
+      - nessie.catalog.service.s3.default-options.access-key.secret=${MINIO_SECRET_KEY}
+      - nessie.catalog.service.s3.default-options.endpoint=http://minio:9000/
+      - nessie.catalog.service.s3.default-options.external-endpoint=http://127.0.0.1:9001/
+
+    networks:
+      - nessie_network
     
   minio:
     container_name: minio
@@ -56,7 +71,16 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
       - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+      - MINIO_DOMAIN=storage
+      - MINIO_REGION_NAME=us-east-1
+      - MINIO_REGION=us-east-1
     command: server --console-address ":9001" /data
-  
+    networks:
+      - nessie_network
+
+networks:
+  nessie_network:
+    driver: bridge
+
 volumes:
   minio_data:
