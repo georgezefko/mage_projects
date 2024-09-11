@@ -15,9 +15,9 @@ import io
 import requests
 from pynessie.client import NessieClient
 import pynessie
-import friendlywords as fw
+#import friendlywords as fw
 MINIO_ENDPOINT = "minio:9000"  # MinIO service endpoint without http://
-NESSIE_ENDPOINT = os.environ.get('NESSIE_ENDPOINT', "http://nessie:19120/iceberg/v1/config")
+NESSIE_ENDPOINT = os.environ.get('NESSIE_ENDPOINT', "http://nessie:19120/iceberg/v1/")
 MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')  # Use base URL without /api/v1
 BUCKET_NAME = "iceberg-demo-nessie" 
@@ -28,7 +28,7 @@ NAMESPACE = "tutorial"
 
 nessie_client = pynessie.init(
      config_dict={
-         'endpoint': 'http://nessie:19120/api/v1',
+         'endpoint': 'http://nessie:19120/api/v1/',
          'verify': True,  # or False if you do not want SSL verification
          'default_branch': 'main',  # Set the default branch
      }
@@ -36,27 +36,32 @@ nessie_client = pynessie.init(
 
 
 # # Ensure the branch exists
-try:
-   # Get the list of references (branches and tags)
-    references = nessie_client.list_references().references
 
-    # Check if the desired branch already exists
-    branch_exists = any(ref.name == BRANCH_NAME for ref in references)
-    
-    if not branch_exists:
-        # Get the hash of the 'main' branch to create a new branch from it
-        main_branch = next(ref for ref in references if ref.name == "main")
-        target_hash = main_branch.hash_
+def create_branch(branch_name):
+    try:
+        # Get the list of references (branches and tags)
+        references = nessie_client.list_references().references
+
+        # Check if the desired branch already exists
+        branch_exists = any(ref.name == branch_name for ref in references)
         
-        # Create the new branch from the 'main' branch at the specified hash
-        nessie_client.create_branch(BRANCH_NAME, "main", hash_on_ref=target_hash)
-        print(f"Branch '{BRANCH_NAME}' created successfully.")
-    else:
-        print(f"Branch '{BRANCH_NAME}' already exists.")
+        if not branch_exists:
+            # Get the hash of the 'main' branch to create a new branch from it
+            main_branch = next(ref for ref in references if ref.name == "main")
+            target_hash = main_branch.hash_
+            
+            # Create the new branch from the 'main' branch at the specified hash
+            branch = nessie_client.create_branch(branch_name, "main", hash_on_ref=target_hash)
+            print(f"Branch '{branch_name}' created successfully.")
+        else:
+            print(f"Branch '{branch_name}' already exists.")
+            branch = next(ref for ref in references if ref.name == branch_name)  # Get the existing branch
 
-except NessieException as e:
-    print(f"Failed to create branch '{BRANCH_NAME}': {str(e)}")
-    raise
+    except NessieClientException as e:
+        print(f"Failed to create branch '{branch_name}': {str(e)}")
+        raise
+
+    return branch
 
 try:
     catalog = load_catalog(
@@ -121,7 +126,7 @@ def create_dummy_data():
 def create_iceberg_table(catalog, table_name, schema, location):
     try:
         # Ensure the namespace exists
-        create_namespace_if_not_exists(catalog, NAMESPACE)
+        #create_namespace_if_not_exists(catalog, NAMESPACE)
 
         print(f"Listing tables in namespace: {NAMESPACE}")
         tables = catalog.list_tables(NAMESPACE)
@@ -164,9 +169,10 @@ def transform_custom(*args, **kwargs):
    
     # Create Iceberg table if not exists
     create_iceberg_table(catalog, TABLE_NAME, schema, f"s3a://{BUCKET_NAME}/{NAMESPACE}")
-    
+    branch = create_branch(BRANCH_NAME)
+    print('branch',branch)
     try:
-        table = catalog.load_table((NAMESPACE, TABLE_NAME))
+        table = catalog.load_table(('tutorial.full-test', TABLE_NAME))
         print('table',table)
         table.append(arrow_table)
         print(f"Appended data to table: {TABLE_NAME}")

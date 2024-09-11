@@ -1,48 +1,50 @@
 blocks:
 - all_upstream_blocks_executed: true
   color: null
-  configuration: {}
+  configuration:
+    file_source:
+      path: data_loaders/iceberg_random.py
   downstream_blocks:
-  - dremio_iceberg_nessie_write
+  - process_data
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: iceberg_random
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks: []
   uuid: iceberg_random
-- all_upstream_blocks_executed: false
-  color: pink
+- all_upstream_blocks_executed: true
+  color: null
   configuration: {}
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: dremio_iceberg_nessie_write
+  name: process_data
   retry_config: null
-  status: failed
+  status: executed
   timeout: null
-  type: custom
+  type: transformer
   upstream_blocks:
   - iceberg_random
-  uuid: dremio_iceberg_nessie_write
+  uuid: process_data
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
 conditionals: []
-created_at: '2024-07-15 21:37:58.438519+00:00'
+created_at: '2024-09-09 19:49:53.473727+00:00'
 data_integration: null
 description: null
 executor_config: {}
 executor_count: 1
 executor_type: null
 extensions: {}
-name: tutorial_nessie_iceberg
+name: iceberg_nessie_no_jvm_tutorial
 notification_config: {}
 remote_variables_dir: null
 retry_config: {}
@@ -52,6 +54,6 @@ settings:
 spark_config: {}
 tags: []
 type: python
-uuid: tutorial_nessie_iceberg
+uuid: iceberg_nessie_no_jvm_tutorial
 variables_dir: /home/src/mage_data/mage
 widgets: []
