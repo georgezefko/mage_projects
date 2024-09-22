@@ -12,3 +12,5 @@ PyDrive
 boto3
 pynessie
 pyiceberg[glue,s3fs,duckdb,pyarrow]
+PyDrive
+faker

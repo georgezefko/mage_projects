@@ -1,13 +1,15 @@
-if 'transformer' not in globals():
-    from mage_ai.data_preparation.decorators import transformer
-if 'test' not in globals():
-    from mage_ai.data_preparation.decorators import test
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+import pyarrow as pa
+import polars as pl
+from datetime import datetime
 from pyiceberg.catalog import load_catalog
 from pyiceberg.schema import Schema, NestedField
 from pyiceberg.types import IntegerType, StringType
-import pyarrow as pa
 import os
 from minio import Minio
+import time
+import random
 from mage.utils.nessie_branch_manager import NessieBranchManager
 
 
@@ -16,26 +18,49 @@ NESSIE_ENDPOINT = os.environ.get('NESSIE_ENDPOINT', "http://nessie:19120/iceberg
 MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')  # Use base URL without /api/v1
 BUCKET_NAME = "iceberg-demo-nessie" 
-TABLE_NAME = "airbnb_listings_trial"
-BRANCH_NAME = "full-test-2"
-NAMESPACE = "tutorial"
+NAMESPACE = "bronze"
+# Function to convert Polars schema to PyArrow schema
+def polars_to_pyarrow_schema(polars_schema):
+    schema_map = {
+        pl.Utf8: pa.string(),
+        pl.Int32: pa.int32(),
+        pl.Float64: pa.float64(),
+        pl.Boolean: pa.bool_(),
+        pl.Datetime: pa.timestamp('ns')
+        # You can add more mappings as needed
+    }
 
+    fields = []
+    for col, dtype in polars_schema.items():
+        if dtype in schema_map:
+            fields.append(pa.field(col, schema_map[dtype]))
+        else:
+            fields.append(pa.field(col, pa.string()))  # Default to string if type not found
 
+    return pa.schema(fields)
 
+# Corrected function to convert Polars DataFrame to PyArrow Table with schema
+def polars_to_arrow_with_schema(df, arrow_schema):
+    """Convert Polars DataFrame to PyArrow Table using a given schema."""
+    
+    # Create an empty dictionary to store Arrow columns
+    arrow_columns = {}
+    
+    # Convert each column in Polars DataFrame to an Arrow Array
+    for col in df.columns:
+        polars_series = df[col]
+        
+        # Extract the data type from the schema for the current column
+        arrow_dtype = arrow_schema.field_by_name(col).type
+        
+        # Convert Polars column to PyArrow array using the extracted data type
+        arrow_columns[col] = pa.array(polars_series.to_list(), type=arrow_dtype)
+    
+    # Build Arrow Table using the Arrow columns
+    arrow_table = pa.Table.from_pydict(arrow_columns, schema=arrow_schema)
+    
+    return arrow_table
 
-def pandas_to_arrow(df):
-    """Convert pandas DataFrame to Arrow table with a predefined schema."""
-    arrow_schema = pa.schema(
-        [
-            pa.field("id", pa.int32(), nullable=False),
-            pa.field("description", pa.string()),
-            pa.field("reviews", pa.string()),
-            pa.field("bedrooms", pa.string()),
-            pa.field("beds", pa.string()),
-            pa.field("baths", pa.string()),
-        ]
-    )
-    return pa.Table.from_pandas(df, schema=arrow_schema)
 
 def create_namespace_if_not_exists(catalog, namespace):
     try:
@@ -111,28 +136,62 @@ def load_and_append_table(branch_manager, branch_name, table_name, arrow_table):
         # Append the Arrow table data to the Iceberg table
         _table.append(arrow_table)
         print(f"Appended data to table: {table_name} on branch: {branch_name}")
+        return _table
     except Exception as e:
         print(f"Failed to load or append data to the table: {e}")
         raise
 
-
-@transformer
-def transform_custom(data, *args, **kwargs):
-    """Main entry point to transform data."""
+def generate_custom_branch_name(table_name, label="bronze"):
+    """Generate a branch name with the format: fix/bronze-timestamp-random_number."""
+    # Current timestamp
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
     
-    arrow_table = pandas_to_arrow(data)
+    # Create the branch name
+    branch_name = f"{label}-{table_name}-{timestamp}"
+    return branch_name
 
-    # Define the Iceberg schema
-    schema = Schema(
-        NestedField(1, "id", IntegerType(), required=True),
-        NestedField(2, "description", StringType(), required=False),
-        NestedField(3, "reviews", StringType(), required=False),
-        NestedField(4, "bedrooms", StringType(), required=False),
-        NestedField(5, "beds", StringType(), required=False),
-        NestedField(6, "baths", StringType(), required=False)
-    )
 
-    # MinIO bucket setup
+def data_quality_check(table):
+
+    try:
+        
+        # both a specific column and a filter
+        scan = table.scan().to_arrow()
+        
+        return scan.num_rows == 40
+        
+    except Exception as e:
+        print("Quality check failed: {}".format(e))
+        
+    # if there is an exception, we return False
+    return False
+
+
+@data_exporter
+def export_data(data, *args, **kwargs):
+    """
+    Exports data to some source.
+
+    Args:
+        data: The output from the upstream parent block
+        args: The output from any additional upstream blocks (if applicable)
+
+    Output (optional):
+        Optionally return any object and it'll be logged and
+        displayed when inspecting the block run.
+    """
+    # Specify your data exporting logic here
+    table = data[0]
+    schema = data[1]
+
+    table_name = table['table_name'][0]
+    branch_name = generate_custom_branch_name(table_name)
+   
+    arrow_schema = polars_to_pyarrow_schema(schema)
+    arrow_table = polars_to_arrow_with_schema(table, arrow_schema)
+
+    print(arrow_schema)
+     # MinIO bucket setup
     client = Minio(
         "minio:9000",
         access_key=MINIO_ACCESS_KEY,
@@ -150,27 +209,24 @@ def transform_custom(data, *args, **kwargs):
     # Initialize the REST catalog for Nessie and Iceberg
     main_catalog = initialize_rest_catalog('main')
 
-
     #create namespace 
     create_namespace_if_not_exists(main_catalog, NAMESPACE)
 
     # Create the Iceberg table if it doesn't exist
-    create_iceberg_table(main_catalog, NAMESPACE, TABLE_NAME, schema, f"s3a://{BUCKET_NAME}/{NAMESPACE}")
-
-     # Use branch manager to handle branch creation
-    #new_branch = branch_manager.create_branch(BRANCH_NAME)
-
-     # Reinitialize catalog for the specific branch
-    #catalog = initialize_rest_catalog(new_branch)
+    create_iceberg_table(main_catalog, NAMESPACE, table_name, arrow_schema, f"s3a://{BUCKET_NAME}/{NAMESPACE}")
+   
     # Load and append data to the table
-    load_and_append_table(branch_manager, BRANCH_NAME, TABLE_NAME, arrow_table)
+    table = load_and_append_table(branch_manager, branch_name, table_name, arrow_table)
 
-    # Merge the branch back to 'main' and delete the temporary branch
-    try:
-        branch_manager.merge_branch(from_branch=BRANCH_NAME)
-        branch_manager.delete_branch(BRANCH_NAME)
-    except Exception as e:
-        print(f"Failed to merge or delete the branch '{BRANCH_NAME}': {e}")
-        raise
+    _pass = data_quality_check(table)
+   
+    if _pass:
+        branch_manager.merge_branch(from_branch=branch_name)
+        branch_manager.delete_branch(branch_name)
 
-    return
+    else:
+        raise ValueError(f"Failed to pass tests for table {table_name}")
+
+    
+
+
