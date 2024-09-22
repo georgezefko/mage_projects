@@ -153,18 +153,19 @@ def generate_custom_branch_name(table_name, label="bronze"):
 
 def data_quality_check(table):
 
-    try:
+    for column_name in table.schema.names:
+        column = table[column_name]
         
-        # both a specific column and a filter
-        scan = table.scan().to_arrow()
+        # Check the null count for each column
+        null_count = column.null_count
         
-        return scan.num_rows == 40
-        
-    except Exception as e:
-        print("Quality check failed: {}".format(e))
-        
-    # if there is an exception, we return False
-    return False
+        if null_count > 0:
+            print(f"Column '{column_name}' contains {null_count} null values.")
+            return False
+        else:
+            print(f"No null values.")
+            return True
+
 
 
 @data_exporter
