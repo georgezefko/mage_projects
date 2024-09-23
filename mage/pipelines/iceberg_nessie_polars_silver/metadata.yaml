@@ -94,7 +94,7 @@ blocks:
   language: python
   name: iceberg_nessie_polars_silver__export_fact_table
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -122,5 +122,9 @@ spark_config: {}
 tags: []
 type: python
 uuid: iceberg_nessie_polars_silver
+variables:
+  bucket_name: iceberg-demo-nessie
+  namespace: silver
+  table_name: orders_fact
 variables_dir: /home/src/mage_data/mage
 widgets: []

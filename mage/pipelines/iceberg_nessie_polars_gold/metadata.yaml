@@ -19,7 +19,7 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - iceberg_nessie_polars_gold__export_aggregates
+  - iceberg_nessie_polars_silver__export_fact_table
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -34,20 +34,22 @@ blocks:
   uuid: iceberg_nessie_polars_gold__create_aggregates
 - all_upstream_blocks_executed: true
   color: null
-  configuration: {}
+  configuration:
+    file_source:
+      path: data_exporters/iceberg_nessie_polars_silver__export_fact_table.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: iceberg_nessie_polars_gold__export_aggregates
+  name: iceberg_nessie_polars_silver__export_fact_table
   retry_config: null
   status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
   - iceberg_nessie_polars_gold__create_aggregates
-  uuid: iceberg_nessie_polars_gold__export_aggregates
+  uuid: iceberg_nessie_polars_silver__export_fact_table
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -70,5 +72,9 @@ spark_config: {}
 tags: []
 type: python
 uuid: iceberg_nessie_polars_gold
+variables:
+  bucket_name: iceberg-demo-nessie
+  namespace: gold
+  table_name: sales_fact
 variables_dir: /home/src/mage_data/mage
 widgets: []

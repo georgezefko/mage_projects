@@ -1,9 +1,12 @@
 from pynessie import init as nessie_init
+import time
+import os
 
 class NessieBranchManager:
-    def __init__(self, endpoint: str = "http://nessie:19120/api/v1/", verify: bool = False):
+    def __init__(self,  verify: bool = False):
         """Initialize the Nessie client for branch management."""
-        self.nessie_client = nessie_init(config_dict={"endpoint": endpoint, "verify": verify})
+        self.endpoint = os.environ.get('NESSIE_ENDPOINT', "http://nessie:19120/api/v1/")
+        self.nessie_client = nessie_init(config_dict={"endpoint": self.endpoint, "verify": verify})
 
     def create_branch(self, branch_name: str, from_branch: str = "main"):
         """Create a new branch from the specified branch, ensuring the source branch hash is used."""
@@ -23,27 +26,21 @@ class NessieBranchManager:
             except Exception as e:
                 print(f"Failed to create branch '{branch_name}': {e}")
                 raise
-    # def create_branch(self, branch_name: str, from_branch: str = "main"):
-    #     try:
-    #         # Get the list of references (branches and tags)
-    #         references = self.nessie_client.list_references().references
 
-    #         # Check if the desired branch already exists
-    #         branch = next((ref for ref in references if ref.name == branch_name), None)
-            
-    #         if branch:
-    #             print(f"Branch '{branch_name}' already exists.")
-    #         else:
-    #             # Get the 'main' branch to create a new branch from it
-    #             main_branch = next(ref for ref in references if ref.name == "main")
-                
-    #             # Create the new branch from the 'main' branch
-    #             branch = self.nessie_client.create_branch(branch_name, from_branch, hash_on_ref=main_branch.hash_)
-    #             print(f"Branch '{branch_name}' created successfully.")
-
-    #     except Exception as e:
-    #         print(f"Failed to create branch '{branch_name}': {str(e)}")
-    #     raise
+    def generate_custom_branch_name(self, table_name: str, label: str):
+        """
+        THIS IS NOT A NESSIE COMMAND
+        
+        Generate a branch name with the format: bronze-customers-timestamp.
+        
+        
+        """
+        # Current timestamp
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        
+        # Create the branch name
+        branch_name = f"{label}-{table_name}-{timestamp}"
+        return branch_name
 
     def delete_branch(self, branch_name: str):
         """Delete a branch."""

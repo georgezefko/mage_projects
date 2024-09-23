@@ -77,6 +77,19 @@ services:
     networks:
       - nessie_network
   
+  minio-client:
+    image: minio/mc:latest
+    container_name: minio-client
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (mc alias set myminio http://minio:9000 zefko sparkTutorial); do echo 'waiting for minio...'; sleep 3; done;
+      mc mb myminio/warehouse;
+      "
+    networks:
+      - nessie_network
+  
   starrocks-fe-0:
     image: starrocks/fe-ubuntu:latest
     hostname: starrocks-fe-0
