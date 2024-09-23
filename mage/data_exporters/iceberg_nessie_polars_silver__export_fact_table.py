@@ -15,7 +15,7 @@ NESSIE_ENDPOINT = os.environ.get('NESSIE_ENDPOINT', "http://nessie:19120/iceberg
 MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')  # Use base URL without /api/v1
 BUCKET_NAME = "iceberg-demo-nessie" 
-NAMESPACE = "bronze"
+NAMESPACE = "silver"
 # Function to convert Polars schema to PyArrow schema
 def polars_to_pyarrow_schema(polars_schema):
     schema_map = {
@@ -138,7 +138,7 @@ def load_and_append_table(branch_manager, branch_name, table_name, arrow_table):
         print(f"Failed to load or append data to the table: {e}")
         raise
 
-def generate_custom_branch_name(table_name, label="bronze"):
+def generate_custom_branch_name(table_name, label=NAMESPACE):
     """Generate a branch name with the format: fix/bronze-timestamp-random_number."""
     # Current timestamp
     timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -179,14 +179,15 @@ def export_data(data, *args, **kwargs):
         displayed when inspecting the block run.
     """
     # Specify your data exporting logic here
-    table = data[0]
-    schema = data[1]
+    schema = data.schema
 
-    table_name = table['table_name'][0]
+    print('schema', schema)
+
+    table_name = 'orders_fact'
     branch_name = generate_custom_branch_name(table_name)
    
     arrow_schema = polars_to_pyarrow_schema(schema)
-    arrow_table = polars_to_arrow_with_schema(table, arrow_schema)
+    arrow_table = polars_to_arrow_with_schema(data, arrow_schema)
 
     print(arrow_schema)
      # MinIO bucket setup
@@ -224,7 +225,4 @@ def export_data(data, *args, **kwargs):
 
     else:
         raise ValueError(f"Failed to pass tests for table {table_name}")
-
-    
-
 

@@ -52,7 +52,7 @@ blocks:
   upstream_blocks:
   - iceberg_nessie_polars_bronze__transform_data
   uuid: iceberg_nessie_polars_bronze__write_to_data_lake
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     reduce_output: true
@@ -70,7 +70,7 @@ blocks:
   upstream_blocks:
   - iceberg_nessie_polars_bronze__write_to_data_lake
   uuid: lyrical_warrior
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     reduce_output: true
@@ -81,7 +81,7 @@ blocks:
   language: python
   name: bronze_trigger_silver
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -93,7 +93,7 @@ concurrency_config: {}
 conditionals: []
 created_at: '2024-09-21 10:27:01.053613+00:00'
 data_integration: null
-description: null
+description: pyiceberg
 executor_config: {}
 executor_count: 1
 executor_type: null

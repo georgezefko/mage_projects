@@ -12,7 +12,7 @@ def trigger(*args, **kwargs):
     """
 
     trigger_pipeline(
-        'iceberg_nessie_no_jvm_tutorial',        # Required: enter the UUID of the pipeline to trigger
+        'iceberg_nessie_polars_silver',        # Required: enter the UUID of the pipeline to trigger
         variables={},           # Optional: runtime variables for the pipeline
         check_status=False,     # Optional: poll and check the status of the triggered pipeline
         error_on_failure=False, # Optional: if triggered pipeline fails, raise an exception

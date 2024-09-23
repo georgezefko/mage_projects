@@ -1,5 +1,6 @@
 if 'data_exporter' not in globals():
     from mage_ai.data_preparation.decorators import data_exporter
+
 import pyarrow as pa
 import polars as pl
 from datetime import datetime
@@ -15,7 +16,7 @@ NESSIE_ENDPOINT = os.environ.get('NESSIE_ENDPOINT', "http://nessie:19120/iceberg
 MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
 MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')  # Use base URL without /api/v1
 BUCKET_NAME = "iceberg-demo-nessie" 
-NAMESPACE = "bronze"
+NAMESPACE = "gold"
 # Function to convert Polars schema to PyArrow schema
 def polars_to_pyarrow_schema(polars_schema):
     schema_map = {
@@ -23,7 +24,8 @@ def polars_to_pyarrow_schema(polars_schema):
         pl.Int32: pa.int32(),
         pl.Float64: pa.float64(),
         pl.Boolean: pa.bool_(),
-        pl.Datetime: pa.timestamp('ns')
+        pl.Datetime: pa.timestamp('ns'),
+        pl.UInt32 : pa.int32()
         # You can add more mappings as needed
     }
 
@@ -138,7 +140,7 @@ def load_and_append_table(branch_manager, branch_name, table_name, arrow_table):
         print(f"Failed to load or append data to the table: {e}")
         raise
 
-def generate_custom_branch_name(table_name, label="bronze"):
+def generate_custom_branch_name(table_name, NAMESPACE):
     """Generate a branch name with the format: fix/bronze-timestamp-random_number."""
     # Current timestamp
     timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -180,9 +182,12 @@ def export_data(data, *args, **kwargs):
     """
     # Specify your data exporting logic here
     table = data[0]
-    schema = data[1]
+    schema = table.schema
+    
 
-    table_name = table['table_name'][0]
+    print('schema', schema)
+
+    table_name = 'sales_fact'
     branch_name = generate_custom_branch_name(table_name)
    
     arrow_schema = polars_to_pyarrow_schema(schema)
@@ -225,6 +230,5 @@ def export_data(data, *args, **kwargs):
     else:
         raise ValueError(f"Failed to pass tests for table {table_name}")
 
-    
 
 
