@@ -20,7 +20,8 @@ blocks:
   uuid: iceberg_nessie_polars_bronze__create_fake_data
 - all_upstream_blocks_executed: true
   color: null
-  configuration: {}
+  configuration:
+    reduce_output: true
   downstream_blocks:
   - iceberg_nessie_polars_bronze__write_to_data_lake
   executor_config: null
@@ -39,7 +40,7 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - lyrical_warrior
+  - bronze_trigger_silver
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -56,24 +57,6 @@ blocks:
   color: null
   configuration:
     reduce_output: true
-  downstream_blocks:
-  - bronze_trigger_silver
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: lyrical warrior
-  retry_config: null
-  status: executed
-  timeout: null
-  type: custom
-  upstream_blocks:
-  - iceberg_nessie_polars_bronze__write_to_data_lake
-  uuid: lyrical_warrior
-- all_upstream_blocks_executed: true
-  color: null
-  configuration:
-    reduce_output: true
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
@@ -85,7 +68,7 @@ blocks:
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - lyrical_warrior
+  - iceberg_nessie_polars_bronze__write_to_data_lake
   uuid: bronze_trigger_silver
 cache_block_output_in_memory: false
 callbacks: []
@@ -115,6 +98,7 @@ type: python
 uuid: iceberg_nessie_polars_bronze
 variables:
   bucket_name: iceberg-nessie-demo
-  namespace: bronze
+  data_layer: bronze
+  namespace: ecommerce
 variables_dir: /home/src/mage_data/mage
 widgets: []

@@ -85,7 +85,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       until (mc alias set myminio http://minio:9000 zefko sparkTutorial); do echo 'waiting for minio...'; sleep 3; done;
-      mc mb myminio/warehouse;
+      mc mb myminio/iceberg-demo-nessie;
       "
     networks:
       - nessie_network

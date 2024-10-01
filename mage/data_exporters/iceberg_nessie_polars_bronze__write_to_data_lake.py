@@ -47,56 +47,61 @@ def export_data(data, *args, **kwargs):
 
     NAMESPACE = kwargs['namespace']
     BUCKET_NAME = kwargs['bucket_name']
+    DATA_LAYER = kwargs['data_layer']
 
 
     # Initialize branch manager
     branch_manager = NessieBranchManager()
     table_manager = IcebergTableManager()
 
-
-    table = data[0]
-    schema = data[1]
-
-    table_name = table['table_name'][0]
-    branch_name = branch_manager.generate_custom_branch_name(table_name, NAMESPACE)
-   
-    arrow_schema = table_manager.polars_to_pyarrow_schema(schema)
-    arrow_table = table_manager.polars_to_arrow_with_schema(table, arrow_schema)
-
+    #create data layer branch
+    bronze_br = branch_manager.create_branch(DATA_LAYER)
+    # generate branch name
+    branch_name = branch_manager.generate_custom_branch_name(DATA_LAYER, NAMESPACE)
     
-    # Initialize the REST catalog for Nessie and Iceberg
-    main_catalog = table_manager.initialize_rest_catalog('main')
 
-    #create namespace 
-    namespace = table_manager.create_namespace_if_not_exists(main_catalog, NAMESPACE)
+    for data in data:
+        table = data[0]
+        schema = data[1]
 
-    # Create the Iceberg table if it doesn't exist
-    table_manager.create_iceberg_table(main_catalog, namespace, table_name, arrow_schema, f"s3a://{BUCKET_NAME}/{NAMESPACE}")
-   
-    new_branch_name = branch_manager.create_branch(branch_name)
+        table_name = f"{table['table_name'][0]}-{DATA_LAYER}"
+    
+        arrow_schema = table_manager.polars_to_pyarrow_schema(schema)
+        arrow_table = table_manager.polars_to_arrow_with_schema(table, arrow_schema)
 
-    # Merge from main branch to ensure the table exists on the new branch
-    branch_manager.merge_branch(from_branch="main", to_branch=new_branch_name)
+        
+        # Initialize the REST catalog for Nessie and Iceberg
+        main_catalog = table_manager.initialize_rest_catalog(bronze_br)
 
-    # Reinitialize catalog for the specific branch
-    catalog = table_manager.initialize_rest_catalog(new_branch_name)
+        #create namespace 
+        namespace = table_manager.create_namespace_if_not_exists(main_catalog, NAMESPACE)
 
-    # Load the table from the branch
-    table_identifier = f"{NAMESPACE}.{table_name}"
-    _table = catalog.load_table(f"{table_identifier}")
+        # Create the Iceberg table if it doesn't exist
+        table_manager.create_iceberg_table(main_catalog, namespace, table_name, arrow_schema, f"s3a://{BUCKET_NAME}/{NAMESPACE}")
 
-    # Append the Arrow table data to the Iceberg table
-    _table.append(arrow_table)
+        # create branch from bronze NOT main
+        branch_name = branch_manager.generate_custom_branch_name(table_name, NAMESPACE)
+        new_cr_branch =  branch_manager.create_branch(branch_name, bronze_br)
+        branch_manager.merge_branch(from_branch=bronze_br, to_branch=new_cr_branch)
+
+        # Reinitialize catalog for the specific branch
+        catalog = table_manager.initialize_rest_catalog(new_cr_branch)
+
+        # Load the table from the branch
+        table_identifier = f"{NAMESPACE}.{table_name}"
+        _table = catalog.load_table(f"{table_identifier}")
+
+        # Append the Arrow table data to the Iceberg table
+        _table.append(arrow_table)
 
 
-    _pass = data_quality_check(_table)
-   
-    if _pass:
-        branch_manager.merge_branch(from_branch=new_branch_name)
-        branch_manager.delete_branch(new_branch_name)
-
-    else:
-        raise ValueError(f"Failed to pass tests for table {table_name}")
+        _pass = data_quality_check(_table)
+    
+        if _pass:
+            branch_manager.merge_branch(from_branch=new_cr_branch, to_branch = bronze_br)
+            branch_manager.delete_branch(new_cr_branch)
+        else:
+            raise ValueError(f"Failed to pass tests for table {table_name}")
 
     
 

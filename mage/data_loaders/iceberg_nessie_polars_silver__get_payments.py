@@ -14,34 +14,12 @@ import os
 from minio import Minio
 import time
 from mage.utils.nessie_branch_manager import NessieBranchManager
+from mage.utils.iceberg_table_manager import IcebergTableManager
 
-MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
-MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
-MINIO_ENDPOINT = "minio:9000" 
-BUCKET_NAME = "iceberg-demo-nessie" 
-NAMESPACE = "bronze"
-TABLE_NAME = "payments"
 
-def initialize_rest_catalog(branch_name):
-    """Initialize the PyIceberg REST catalog to communicate with Nessie."""
-    try:
-        catalog = load_catalog(
-            name="nessie",
-            type="rest",
-            uri=f"http://nessie:19120/iceberg/{branch_name}",  # REST endpoint for Nessie
-            **{
-                "s3.endpoint": f"http://{MINIO_ENDPOINT}",
-                "s3.access-key-id": MINIO_ACCESS_KEY,
-                "s3.secret-access-key": MINIO_SECRET_KEY,
-                "nessie.default-branch.name": 'main',  # Default Nessie branch
-            }
-        )
-        print(f"Catalog initialized successfully for branch: {branch_name}")
-        return catalog
-    except Exception as e:
-        print(f"Error initializing catalog for branch '{branch_name}': {str(e)}")
-        raise
 
+
+tables = ["payments", "orders", "customers","reviews"]
 
 
 @data_loader
@@ -52,24 +30,30 @@ def load_data(*args, **kwargs):
     Returns:
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
-   
-    main_catalog = initialize_rest_catalog('main')
-    tables = main_catalog.list_tables(NAMESPACE)
+    table_manager = IcebergTableManager()
+    NAMESPACE = kwargs['namespace']
+    main_catalog = table_manager.initialize_rest_catalog('bronze')
+    #tables = main_catalog.list_tables(NAMESPACE)
 
     print(tables)
-    table_name = f"{NAMESPACE}.{TABLE_NAME}"
-    table = main_catalog.load_table(table_name)
- 
-    arrow_table = table.scan().to_arrow()
-   
-    polars_df = pl.from_arrow(arrow_table)
-
-    return polars_df
+    bronze_tbls = []
+    for tbl in tables:
+        table_name = f"{NAMESPACE}.{tbl}-bronze"
+        table = main_catalog.load_table(table_name)
+    
+        arrow_table = table.scan().to_arrow()
+    
+        polars_df = pl.from_arrow(arrow_table)
+        bronze_tbls.append(polars_df)
+    print(len(bronze_tbls))
+    return bronze_tbls
 
 
 @test
-def test_output(output, *args) -> None:
+def test_output(output,tables, *args) -> None:
     """
     Template code for testing the output of the block.
     """
+   
     assert output is not None, 'The output is undefined'
+    assert len(output) == len(tables), 'Table is missing'

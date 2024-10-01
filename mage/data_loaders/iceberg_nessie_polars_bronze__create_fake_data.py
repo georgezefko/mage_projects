@@ -5,6 +5,8 @@ if 'test' not in globals():
 import os
 from faker import Faker
 import random
+import polars as pl
+import pandas as pd
 
 fake = Faker()
 
@@ -32,6 +34,18 @@ def generate_orders(customers_df, n):
         'table_name': ['orders' for _ in range(n)]
     }
 
+def generate_order_items(orders_df, products_df, sellers_df, n):
+    return {
+        'order_id': random.choices(orders_df['order_id'], k=n),  # Link to orders
+        'product_id': random.choices(products_df['product_id'], k=n),  # Link to products
+        'seller_id': random.choices(sellers_df['seller_id'], k=n),  # Link to sellers
+        'shipping_limit_date': [fake.date_time_between(start_date='-2y', end_date='now') for _ in range(n)],
+        'price': [round(random.uniform(10, 1000), 2) for _ in range(n)],  # Random price for products
+        'freight_value': [round(random.uniform(5, 100), 2) for _ in range(n)],  # Random freight cost
+        'order_item_id': [random.randint(1, 5) for _ in range(n)],  # Sequential number of the item in the order
+        'product_quantity': [random.randint(1, 5) for _ in range(n)],  # Number of units ordered
+        'table_name': ['order_items' for _ in range(n)]
+    }
 
 def generate_order_payments(orders_df, n):
     return {
@@ -92,6 +106,7 @@ def generate_geolocation(n):
 
 
 
+
 @data_loader
 def load_data(*args, **kwargs):
     """
@@ -102,7 +117,6 @@ def load_data(*args, **kwargs):
     """
   
     # Set the path to the local folder where your data is stored
-   
     n_rows = 10
 
     customers = generate_customers(n_rows)
@@ -117,10 +131,13 @@ def load_data(*args, **kwargs):
 
     sellers = generate_sellers(n_rows)
 
+    items = generate_order_items(orders, products, sellers, n_rows)
+    
     geolocation = generate_geolocation(n_rows)
 
-    #this structure need for dynamic blocks to perform downstream process in parallel
-    return [[customers, orders, payments, reviews, products, sellers, geolocation]]
+    # This structure need for dynamic blocks to perform downstream process in parallel
+    # At the moment it supports Pandas dataframes but doesn't work for Polars dataframes
+    return [[customers, orders, payments, reviews, products, sellers, items, geolocation]]
 
 
 @test

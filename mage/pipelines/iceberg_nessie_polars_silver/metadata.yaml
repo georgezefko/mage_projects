@@ -10,61 +10,12 @@ blocks:
   language: python
   name: iceberg_nessie_polars_silver__get_payments
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks: []
   uuid: iceberg_nessie_polars_silver__get_payments
-- all_upstream_blocks_executed: true
-  color: null
-  configuration: {}
-  downstream_blocks:
-  - iceberg_nessie_polars_silver__create_fact_table
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: iceberg_nessie_polars_silver__get_orders
-  retry_config: null
-  status: executed
-  timeout: null
-  type: data_loader
-  upstream_blocks: []
-  uuid: iceberg_nessie_polars_silver__get_orders
-- all_upstream_blocks_executed: true
-  color: null
-  configuration:
-    file_source:
-      path: data_loaders/iceberg_nessie_polars_silver__get_cutomers.py
-  downstream_blocks:
-  - iceberg_nessie_polars_silver__create_fact_table
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: iceberg_nessie_polars_silver__get_cutomers
-  retry_config: null
-  status: executed
-  timeout: null
-  type: data_loader
-  upstream_blocks: []
-  uuid: iceberg_nessie_polars_silver__get_cutomers
-- all_upstream_blocks_executed: true
-  color: null
-  configuration: {}
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: iceberg_nessie_polars_silver__get_reviews
-  retry_config: null
-  status: executed
-  timeout: null
-  type: data_loader
-  upstream_blocks: []
-  uuid: iceberg_nessie_polars_silver__get_reviews
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
@@ -79,12 +30,9 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - iceberg_nessie_polars_silver__get_cutomers
-  - iceberg_nessie_polars_silver__get_orders
   - iceberg_nessie_polars_silver__get_payments
-  - iceberg_nessie_polars_silver__get_reviews
   uuid: iceberg_nessie_polars_silver__create_fact_table
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks: []
@@ -94,7 +42,7 @@ blocks:
   language: python
   name: iceberg_nessie_polars_silver__export_fact_table
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -124,7 +72,8 @@ type: python
 uuid: iceberg_nessie_polars_silver
 variables:
   bucket_name: iceberg-demo-nessie
-  namespace: silver
+  data_layer: silver
+  namespace: ecommerce
   table_name: orders_fact
 variables_dir: /home/src/mage_data/mage
 widgets: []

@@ -42,9 +42,7 @@ def process_data(data):
 
 @transformer
 def transform_data(data, *args, **kwargs):
-     
     df, schema = process_data(data)  # Process the first list (table)
-        
     return [df, schema]
 
 

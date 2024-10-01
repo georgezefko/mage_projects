@@ -13,12 +13,9 @@ def transform_custom(data,*args, **kwargs):
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
     # Specify your custom logic here
-   # customers = data[0]
- 
-    for i in data:
-        print('data',i[0])
+    print(data)
+    return data
 
-    return 
 
 @test
 def test_output(output, *args) -> None:
