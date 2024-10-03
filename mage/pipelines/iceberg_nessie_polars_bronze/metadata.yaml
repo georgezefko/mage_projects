@@ -97,7 +97,7 @@ tags:
 type: python
 uuid: iceberg_nessie_polars_bronze
 variables:
-  bucket_name: iceberg-nessie-demo
+  bucket_name: iceberg-nessie
   data_layer: bronze
   namespace: ecommerce
 variables_dir: /home/src/mage_data/mage

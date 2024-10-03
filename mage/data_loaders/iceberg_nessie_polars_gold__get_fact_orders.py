@@ -8,35 +8,21 @@ import polars as pl
 
 from pyiceberg.catalog import load_catalog
 import os
+from mage.utils.nessie_branch_manager import NessieBranchManager
+from mage.utils.iceberg_table_manager import IcebergTableManager
 
 
-MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
-MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
-MINIO_ENDPOINT = "minio:9000" 
-BUCKET_NAME = "iceberg-demo-nessie" 
-NAMESPACE = "silver"
-TABLE_NAME = "orders_fact"
+def get_tables(tbl,namespace, catalog):
 
-def initialize_rest_catalog(branch_name):
-    """Initialize the PyIceberg REST catalog to communicate with Nessie."""
-    try:
-        catalog = load_catalog(
-            name="nessie",
-            type="rest",
-            uri=f"http://nessie:19120/iceberg/{branch_name}",  # REST endpoint for Nessie
-            **{
-                "s3.endpoint": f"http://{MINIO_ENDPOINT}",
-                "s3.access-key-id": MINIO_ACCESS_KEY,
-                "s3.secret-access-key": MINIO_SECRET_KEY,
-                "nessie.default-branch.name": 'main',  # Default Nessie branch
-            }
-        )
-        print(f"Catalog initialized successfully for branch: {branch_name}")
-        return catalog
-    except Exception as e:
-        print(f"Error initializing catalog for branch '{branch_name}': {str(e)}")
-        raise
+    
+    #tables = main_catalog.list_tables(NAMESPACE)
+    table_name = f"{namespace}.{tbl}_silver"
+    table = catalog.load_table(table_name)
 
+    arrow_table = table.scan().to_arrow()
+
+    polars_df = pl.from_arrow(arrow_table)
+    return polars_df
 
 
 @data_loader
@@ -47,19 +33,20 @@ def load_data(*args, **kwargs):
     Returns:
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
-   
-    main_catalog = initialize_rest_catalog('main')
-    tables = main_catalog.list_tables(NAMESPACE)
+    NAMESPACE = kwargs['namespace']
+    table_manager = IcebergTableManager()
+    
+    main_catalog = table_manager.initialize_rest_catalog('silver')
+    
+    orders_fact = get_tables('orders_fct', NAMESPACE,main_catalog)
+    order_items_fct = get_tables('order_items_fct', NAMESPACE,main_catalog)
+    products_dim = get_tables('products_dim', NAMESPACE,main_catalog)
+    sellers_dim = get_tables('sellers_dim', NAMESPACE,main_catalog)
+    cutomers_dim = get_tables('customers_dim', NAMESPACE,main_catalog)
+    
 
-    print(tables)
-    table_name = f"{NAMESPACE}.{TABLE_NAME}"
-    table = main_catalog.load_table(table_name)
- 
-    arrow_table = table.scan().to_arrow()
-   
-    polars_df = pl.from_arrow(arrow_table)
 
-    return polars_df
+    return orders_fact, order_items_fct, products_dim, sellers_dim, cutomers_dim
 
 
 @test

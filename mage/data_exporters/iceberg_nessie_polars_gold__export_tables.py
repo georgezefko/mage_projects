@@ -29,7 +29,7 @@ def data_quality_check(table):
             return True
 
 
-def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, silver_br, BUCKET_NAME):
+def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, branch_lyr, BUCKET_NAME):
     
     table_name = tbl_name
     schema = data.schema
@@ -38,7 +38,7 @@ def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, silver_
     arrow_table = table_manager.polars_to_arrow_with_schema(data, arrow_schema)
 
     # Initialize the REST catalog for Nessie and Iceberg
-    main_catalog = table_manager.initialize_rest_catalog(silver_br)
+    main_catalog = table_manager.initialize_rest_catalog(branch_lyr)
 
     #create namespace 
     namespace = table_manager.create_namespace_if_not_exists(main_catalog, NAMESPACE)
@@ -47,10 +47,10 @@ def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, silver_
     table_manager.create_iceberg_table(main_catalog, namespace, table_name, arrow_schema, f"s3a://{BUCKET_NAME}/{NAMESPACE}")
    
     branch_name = branch_manager.generate_custom_branch_name(table_name, NAMESPACE)
-    new_branch_name = branch_manager.create_branch(branch_name,silver_br)
+    new_branch_name = branch_manager.create_branch(branch_name,branch_lyr)
 
     # Merge from main branch to ensure the table exists on the new branch
-    branch_manager.merge_branch(from_branch=silver_br, to_branch=new_branch_name)
+    branch_manager.merge_branch(from_branch=branch_lyr, to_branch=new_branch_name)
 
     # Reinitialize catalog for the specific branch
     catalog = table_manager.initialize_rest_catalog(new_branch_name)
@@ -66,7 +66,7 @@ def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, silver_
     _pass = data_quality_check(_table)
    
     if _pass:
-        branch_manager.merge_branch(from_branch=new_branch_name, to_branch = silver_br)
+        branch_manager.merge_branch(from_branch=new_branch_name, to_branch = branch_lyr)
         branch_manager.delete_branch(new_branch_name)
 
     else:
@@ -75,7 +75,7 @@ def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, silver_
 
 
 @data_exporter
-def export_data(orders_fct, order_items_fct, sellers_dim, customers_dim, products_dim, *args, **kwargs):
+def export_data(customer_sales, sales, *args, **kwargs):
     """
     Exports data to some source.
 
@@ -98,19 +98,13 @@ def export_data(orders_fct, order_items_fct, sellers_dim, customers_dim, product
     branch_manager = NessieBranchManager()
     table_manager = IcebergTableManager()
 
-    #create data layer branch
-    silver_br = branch_manager.create_branch(DATA_LAYER)
+    # At gold layer we use main as branch
 
-    _ = write_data(orders_fct, NAMESPACE, branch_manager, table_manager, 'orders_fct_silver',silver_br, BUCKET_NAME)
+    gold_br = 'main'
+  
+    _ = write_data(customer_sales, NAMESPACE, branch_manager, table_manager, 'customer_sales_summary',gold_br, BUCKET_NAME)
     
-    _ = write_data(order_items_fct, NAMESPACE, branch_manager, table_manager, 'order_items_fct_silver',silver_br, BUCKET_NAME)
-    _ = write_data(sellers_dim, NAMESPACE, branch_manager, table_manager, 'sellers_dim_silver',silver_br, BUCKET_NAME)
-
-    _ = write_data(customers_dim, NAMESPACE, branch_manager, table_manager, 'customers_dim_silver',silver_br, BUCKET_NAME)
-
-    _ = write_data(products_dim, NAMESPACE, branch_manager, table_manager, 'products_dim_silver',silver_br, BUCKET_NAME)
-
-    
+    #_ = write_data(sales, NAMESPACE, branch_manager, table_manager, 'sales_summary',gold_br, BUCKET_NAME)
     
 
 

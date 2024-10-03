@@ -2,6 +2,7 @@ if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
+
 import polars as pl
 
 @transformer
@@ -21,21 +22,30 @@ def transform(data, *args, **kwargs):
     """
     # Specify your transformation logic here
 
-    # Total revenue per order
-    sales_fact = data.groupby('order_id').agg([
-        pl.sum('payment_value').alias('total_revenue'),
-        pl.count('order_id').alias('number_of_orders'),
-        pl.mean('payment_value').alias('avg_payment_value'),
+    customers = data[2]
+    geolocation = data[7]
+
+    customers = customers.drop("table_name")
+    geolocation =  geolocation.drop("table_name")
+
+
+    customer_dim = customers.join(
+    geolocation, 
+    left_on='customer_zip_code_prefix', 
+    right_on='geolocation_zip_code_prefix', 
+    how='left'
+    )
+
+    # Selecting and renaming columns as needed
+    customer_dim = customer_dim.select([
+    'customer_id', 
+    'customer_unique_id', 
+    'customer_zip_code_prefix', 
+    pl.col('geolocation_city').alias('customer_city'),  # Alias geolocation_city to customer_city
+    pl.col('geolocation_state').alias('customer_state')  # Alias geolocation_state to customer_state
     ])
 
-    # Aggregate number of orders and total revenue per customer
-    customer_sales_fact = data.groupby('customer_id').agg([
-        pl.sum('payment_value').alias('total_revenue_per_customer'),
-        pl.count('order_id').alias('total_orders_per_customer'),
-        pl.mean('payment_value').alias('avg_order_value_per_customer')
-    ])
-
-    return [sales_fact, customer_sales_fact]
+    return customer_dim
 
 
 @test

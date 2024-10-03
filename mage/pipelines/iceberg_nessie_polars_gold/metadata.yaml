@@ -3,7 +3,8 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - iceberg_nessie_polars_gold__create_aggregates
+  - iceberg_nessie_polars_gold__sales_summary_fact
+  - iceberg_nessie_polars_gold__customer_sales_summary
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -19,37 +20,57 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - iceberg_nessie_polars_silver__export_fact_table
+  - iceberg_nessie_polars_gold__customer_sales_summary
+  - iceberg_nessie_polars_gold__export_tables
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: iceberg_nessie_polars_gold__create_aggregates
+  name: iceberg_nessie_polars_gold__sales_summary_fact
   retry_config: null
   status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - iceberg_nessie_polars_gold__get_fact_orders
-  uuid: iceberg_nessie_polars_gold__create_aggregates
+  uuid: iceberg_nessie_polars_gold__sales_summary_fact
 - all_upstream_blocks_executed: true
   color: null
   configuration:
     file_source:
-      path: data_exporters/iceberg_nessie_polars_silver__export_fact_table.py
+      path: transformers/iceberg_nessie_polars_gold__customer_sales_summary.py
+  downstream_blocks:
+  - iceberg_nessie_polars_gold__export_tables
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_gold__customer_sales_summary
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_gold__sales_summary_fact
+  - iceberg_nessie_polars_gold__get_fact_orders
+  uuid: iceberg_nessie_polars_gold__customer_sales_summary
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: iceberg_nessie_polars_silver__export_fact_table
+  name: iceberg_nessie_polars_gold__export_tables
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - iceberg_nessie_polars_gold__create_aggregates
-  uuid: iceberg_nessie_polars_silver__export_fact_table
+  - iceberg_nessie_polars_gold__customer_sales_summary
+  - iceberg_nessie_polars_gold__sales_summary_fact
+  uuid: iceberg_nessie_polars_gold__export_tables
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -74,7 +95,8 @@ type: python
 uuid: iceberg_nessie_polars_gold
 variables:
   bucket_name: iceberg-demo-nessie
-  namespace: gold
+  data_layer: gold
+  namespace: ecommerce
   table_name: sales_fact
 variables_dir: /home/src/mage_data/mage
 widgets: []

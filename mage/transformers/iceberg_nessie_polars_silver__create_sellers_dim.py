@@ -2,8 +2,8 @@ if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
-
 import polars as pl
+
 
 @transformer
 def transform(data, *args, **kwargs):
@@ -21,26 +21,29 @@ def transform(data, *args, **kwargs):
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
     # Specify your transformation logic here
-    #this isn't a best practise because if the order change then the pipeline will break
-    
-    payments = data[0]
-    orders = data[1]
-    customers = data[2]
-    reviews = data[3]
+    sellers = data[5]
+    geolocation = data[7]
 
-    orders = orders.drop("table_name")
-    customers = customers.drop("table_name")
-    payments = payments.drop("table_name")
-    reviews = reviews.drop("table_name")
+    sellers = sellers.drop("table_name")
+    geolocation =  geolocation.drop("table_name")
 
-    # Join orders with customers and payments to create an order fact table
-    order_fact = orders.join(customers, on='customer_id', how='inner')
-    order_fact = order_fact.join(payments, on='order_id', how='left')
-    order_fact = order_fact.join(reviews, on='order_id', how='left')
 
-    order_fact = order_fact.select(['order_id', 'customer_id', 'order_status', 'payment_value', 'order_purchase_timestamp', 'review_score'])
+    seller_dim = sellers.join(
+    geolocation, 
+    left_on='seller_zip_code_prefix', 
+    right_on='geolocation_zip_code_prefix', 
+    how='left'
+    )
 
-    return order_fact
+    # Selecting and renaming columns as needed
+    seller_dim = seller_dim.select([
+    'seller_id', 
+    'seller_zip_code_prefix', 
+    pl.col('geolocation_city').alias('seller_city'),  # Alias geolocation_city to seller_city
+    pl.col('geolocation_state').alias('seller_state')  # Alias geolocation_state to seller_state
+    ])
+
+    return seller_dim
 
 
 @test

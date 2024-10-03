@@ -21,26 +21,14 @@ def transform(data, *args, **kwargs):
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
     # Specify your transformation logic here
-    #this isn't a best practise because if the order change then the pipeline will break
-    
-    payments = data[0]
-    orders = data[1]
-    customers = data[2]
-    reviews = data[3]
+    products = data[4]
 
-    orders = orders.drop("table_name")
-    customers = customers.drop("table_name")
-    payments = payments.drop("table_name")
-    reviews = reviews.drop("table_name")
+    product_dim = products.select([
+    'product_id', 'product_category_name', 'product_name_length', 'product_description_length',
+    'product_weight_g', 'product_length_cm', 'product_height_cm', 'product_width_cm'
+    ])
 
-    # Join orders with customers and payments to create an order fact table
-    order_fact = orders.join(customers, on='customer_id', how='inner')
-    order_fact = order_fact.join(payments, on='order_id', how='left')
-    order_fact = order_fact.join(reviews, on='order_id', how='left')
-
-    order_fact = order_fact.select(['order_id', 'customer_id', 'order_status', 'payment_value', 'order_purchase_timestamp', 'review_score'])
-
-    return order_fact
+    return product_dim
 
 
 @test

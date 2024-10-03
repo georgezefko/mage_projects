@@ -2,11 +2,10 @@ if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
-
 import polars as pl
 
 @transformer
-def transform(data, *args, **kwargs):
+def transform(sales_summary_fact, silver_data, *args, **kwargs):
     """
     Template code for a transformer block.
 
@@ -21,26 +20,20 @@ def transform(data, *args, **kwargs):
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
     # Specify your transformation logic here
-    #this isn't a best practise because if the order change then the pipeline will break
-    
-    payments = data[0]
-    orders = data[1]
-    customers = data[2]
-    reviews = data[3]
+    customers = silver_data[4]
+    # Total revenue per order
+    customer_sales_summary = sales_summary_fact.groupby('customer_id').agg([
+    pl.count('order_id').alias('total_orders'),  # Count of orders per customer
+    pl.sum('payment_value').alias('total_spent'),  # Total amount spent by customer
+    pl.mean('review_score').alias('average_review_score'),  # Average review score
+    pl.max('order_purchase_timestamp').alias('recency_of_last_order')  # Most recent order timestamp
+    ])
 
-    orders = orders.drop("table_name")
-    customers = customers.drop("table_name")
-    payments = payments.drop("table_name")
-    reviews = reviews.drop("table_name")
+    # Join with customer_dim to get additional customer information
+    customer_sales_summary = customer_sales_summary.join(customers, on='customer_id', how='left')
 
-    # Join orders with customers and payments to create an order fact table
-    order_fact = orders.join(customers, on='customer_id', how='inner')
-    order_fact = order_fact.join(payments, on='order_id', how='left')
-    order_fact = order_fact.join(reviews, on='order_id', how='left')
 
-    order_fact = order_fact.select(['order_id', 'customer_id', 'order_status', 'payment_value', 'order_purchase_timestamp', 'review_score'])
-
-    return order_fact
+    return customer_sales_summary
 
 
 @test
