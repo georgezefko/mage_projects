@@ -33,7 +33,6 @@ class NessieBranchManager:
         
         Generate a branch name with the format: bronze-customers-timestamp.
         
-        
         """
         # Current timestamp
         timestamp = time.strftime("%Y%m%d-%H%M%S")

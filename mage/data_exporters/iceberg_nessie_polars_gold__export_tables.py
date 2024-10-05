@@ -70,7 +70,7 @@ def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, branch_
         branch_manager.delete_branch(new_branch_name)
 
     else:
-        raise ValueError(f"Failed to pass tests for table {table_name}")
+        raise ValueError(f"Failed to pass quality tests for table {table_name} and branch {new_cr_branch}")
 
 
 
@@ -102,9 +102,9 @@ def export_data(customer_sales, sales, *args, **kwargs):
 
     gold_br = 'main'
   
-    _ = write_data(customer_sales, NAMESPACE, branch_manager, table_manager, 'customer_sales_summary',gold_br, BUCKET_NAME)
+    _ = write_data(customer_sales, NAMESPACE, branch_manager, table_manager, 'customer_sales_summary_gold',gold_br, BUCKET_NAME)
     
-    #_ = write_data(sales, NAMESPACE, branch_manager, table_manager, 'sales_summary',gold_br, BUCKET_NAME)
+    _ = write_data(sales, NAMESPACE, branch_manager, table_manager, 'sales_summary_gold',gold_br, BUCKET_NAME)
     
 
 

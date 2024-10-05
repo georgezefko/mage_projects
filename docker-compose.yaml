@@ -28,6 +28,7 @@ services:
       KAFKA_STREAM_TOPIC: ${KAFKA_STREAM_TOPIC}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MAGE_SLACK_WEBHOOK_URL: ${MAGE_SLACK_WEBHOOK_URL}
     networks:
       - nessie_network
 

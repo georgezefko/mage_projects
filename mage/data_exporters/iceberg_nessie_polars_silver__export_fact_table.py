@@ -21,7 +21,7 @@ def data_quality_check(table):
         # Check the null count for each column
         null_count = column.null_count
         
-        if null_count > 0:
+        if null_count == 0:
             print(f"Column '{column_name}' contains {null_count} null values.")
             return False
         else:
@@ -70,7 +70,7 @@ def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, silver_
         branch_manager.delete_branch(new_branch_name)
 
     else:
-        raise ValueError(f"Failed to pass tests for table {table_name}")
+        raise ValueError(f"Failed to pass quality tests for table {table_name} and branch {new_cr_branch}")
 
 
 

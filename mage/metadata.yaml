@@ -44,6 +44,13 @@ notification_config:
   - trigger_passed_sla
   slack_config:
     webhook_url: "{{ env_var('MAGE_SLACK_WEBHOOK_URL') }}"
+  message_templates:
+    failure:
+      details: >
+        Failed to execute pipeline {pipeline_run_url}.
+        Pipeline uuid: {pipeline_uuid}. Trigger name: {pipeline_schedule_name}.
+        With {stacktrace}.
+    success:
   teams_config:
     webhook_url: "{{ env_var('MAGE_TEAMS_WEBHOOK_URL') }}"
 project_uuid: df9269f428e646b4ae70cd2bdc00b736

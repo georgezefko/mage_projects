@@ -73,11 +73,18 @@ class IcebergTableManager:
         schema_map = {
             pl.Utf8: pa.string(),
             pl.Int32: pa.int32(),
+            pl.Int64: pa.int64(),
+            pl.Float32: pa.float32(),
             pl.Float64: pa.float64(),
             pl.Boolean: pa.bool_(),
-            pl.Datetime: pa.timestamp('ns')
-            # You can add more mappings as needed
+            pl.Datetime: pa.timestamp('ns'),
+            pl.UInt32: pa.uint32(),
+            pl.UInt64: pa.uint64(),
+            pl.UInt8: pa.uint8(),  # You can add more mappings if needed
+            pl.Date: pa.date32(),
+            pl.Time: pa.time32('ms')
         }
+
 
         fields = []
         for col, dtype in polars_schema.items():

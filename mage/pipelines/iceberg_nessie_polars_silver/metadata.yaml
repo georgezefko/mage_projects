@@ -81,7 +81,7 @@ blocks:
   language: python
   name: iceberg_nessie_polars_silver_create_order_items
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
@@ -104,10 +104,11 @@ blocks:
   upstream_blocks:
   - iceberg_nessie_polars_silver__get_payments
   uuid: iceberg_nessie_polars_silver__create_fact_table
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
-  downstream_blocks: []
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__trigger_gold
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -124,6 +125,22 @@ blocks:
   - iceberg_nessie_polars_silver__create_customers_dim
   - iceberg_nessie_polars_silver__create_products_dim
   uuid: iceberg_nessie_polars_silver__export_fact_table
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__trigger_gold
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__export_fact_table
+  uuid: iceberg_nessie_polars_silver__trigger_gold
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

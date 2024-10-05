@@ -101,7 +101,7 @@ def export_data(data, *args, **kwargs):
             branch_manager.merge_branch(from_branch=new_cr_branch, to_branch = bronze_br)
             branch_manager.delete_branch(new_cr_branch)
         else:
-            raise ValueError(f"Failed to pass tests for table {table_name}")
+            raise ValueError(f"Failed to pass quality tests for table {table_name} and branch {new_cr_branch}")
 
     
 

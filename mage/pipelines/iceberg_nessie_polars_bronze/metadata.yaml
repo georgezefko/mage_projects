@@ -47,13 +47,13 @@ blocks:
   language: python
   name: iceberg_nessie_polars_bronze__write_to_data_lake
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
   - iceberg_nessie_polars_bronze__transform_data
   uuid: iceberg_nessie_polars_bronze__write_to_data_lake
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     reduce_output: true
