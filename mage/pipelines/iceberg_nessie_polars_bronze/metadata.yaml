@@ -94,6 +94,7 @@ spark_config: {}
 tags:
 - iceberg,
 - no_jvm
+- nessie
 type: python
 uuid: iceberg_nessie_polars_bronze
 variables:
