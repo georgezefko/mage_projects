@@ -21,7 +21,7 @@ def data_quality_check(table):
         # Check the null count for each column
         null_count = column.null_count
         
-        if null_count == 0:
+        if null_count > 0:
             print(f"Column '{column_name}' contains {null_count} null values.")
             return False
         else:
