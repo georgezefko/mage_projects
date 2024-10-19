@@ -21,3 +21,13 @@ In the first tutorial/project, I guide you through building the repository using
 You can find the relevant article with a detailed guide here: [Medium blog](https://medium.com/data-engineer-things/building-a-local-data-lake-from-scratch-with-minio-iceberg-spark-starrocks-mage-and-docker-c12436e6ff9d)
 
 The isolated code for that project is here: [SparkDataLake](https://github.com/georgezefko/mage_projects/tree/feat/sparkDataLake)
+
+### 2. Data Pipeline Development with MinIO, Iceberg, Nessie, Polars, StarRocks, Mage, and Docker
+
+In the second tutorial/project, we leverage the structure we implemented in the first tutorial and utilize Nessie catalogue to build an end to end pipeline using the medallion architecture for structuring our data.
+
+You can find the relevant article with a detailed guide here: [Medium blog]()
+
+The isolated code for that project is here: [IcebergNessie](https://github.com/georgezefko/mage_projects/tree/feat/icebergNessie)
+
+A small practicality for this project is that you can either run the pipelines one by one or just trigger the bronze one and if successfull it will trigger silver and gold. Then you can see the results in MinIO, Nessie and query them from any SQL engine you like.
