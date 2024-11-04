@@ -12,15 +12,17 @@ COPY ${PROJECT_NAME} ${PROJECT_NAME}
 
 ENV USER_CODE_PATH=${USER_CODE_PATH}
 
-# # Add Debian Bullseye repository
-# RUN echo 'deb http://deb.debian.org/debian bullseye main' > /etc/apt/sources.list.d/bullseye.list
+#-------Spark Related part-------------
+# Add Debian Bullseye repository
+RUN echo 'deb http://deb.debian.org/debian bullseye main' > /etc/apt/sources.list.d/bullseye.list
 
-# # Install OpenJDK 11 and wget
-# RUN apt-get update -y && \
-#     apt-get install -y openjdk-11-jdk wget
+# Install OpenJDK 11 and wget
+RUN apt-get update -y && \
+    apt-get install -y openjdk-11-jdk wget
 
-# # Remove Debian Bullseye repository
-# RUN rm /etc/apt/sources.list.d/bullseye.list
+# Remove Debian Bullseye repository
+RUN rm /etc/apt/sources.list.d/bullseye.list
+#------------------------------------
 
 # Install custom Python libraries
 RUN pip3 install -r ${USER_CODE_PATH}/requirements.txt
