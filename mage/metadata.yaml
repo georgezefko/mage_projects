@@ -30,16 +30,7 @@ spark_config:
   executor_env: {}
   # Jar files to be uploaded to the cluster and added to the classpath
   # e.g., spark_jars: ['/home/path/example1.jar']
-  spark_jars: [
-    #delta
-    '/home/mage_code/mage/spark-config/hadoop-aws-3.3.4.jar', 
-    '/home/mage_code/mage/spark-config/aws-java-sdk-bundle-1.12.262.jar',
-    '/home/mage_code/mage/spark-config/delta-storage-2.4.0.jar',
-    '/home/mage_code/mage/spark-config/delta-core_2.12-2.4.0.jar',
-    #iceberg
-    '/home/mage_code/mage/spark-config/bundle-2.26.15.jar',
-    '/home/mage_code/mage/spark-config/url-connection-client-2.26.15.jar',
-    '/home/mage_code/mage/spark-config/iceberg-spark-runtime-3.5_2.12-1.5.2.jar',]
+  spark_jars: ['/home/mage_code/mage/spark-config/hadoop-aws-3.3.4.jar', '/home/mage_code/mage/spark-config/aws-java-sdk-bundle-1.12.262.jar', '/home/mage_code/mage/spark-config/delta-storage-2.4.0.jar', '/home/mage_code/mage/spark-config/delta-core_2.12-2.4.0.jar', '/home/mage_code/mage/spark-config/bundle-2.26.15.jar', '/home/mage_code/mage/spark-config/url-connection-client-2.26.15.jar', '/home/mage_code/mage/spark-config/iceberg-spark-runtime-3.5_2.12-1.5.2.jar', '/home/mage_code/mage/spark-config/nessie-spark-extensions-3.5_2.12-0.91.3.jar']
   # Path where Spark is installed on worker nodes,
   # e.g. spark_home: '/usr/lib/spark'
   spark_home:
@@ -53,7 +44,18 @@ notification_config:
   - trigger_passed_sla
   slack_config:
     webhook_url: "{{ env_var('MAGE_SLACK_WEBHOOK_URL') }}"
+  message_templates:
+    failure:
+      details: >
+        Failed to execute pipeline {pipeline_run_url}.
+        Pipeline uuid: {pipeline_uuid}. Trigger name: {pipeline_schedule_name}.
+        With {stacktrace}.
+    success:
   teams_config:
     webhook_url: "{{ env_var('MAGE_TEAMS_WEBHOOK_URL') }}"
 project_uuid: df9269f428e646b4ae70cd2bdc00b736
 help_improve_mage: true
+features:
+  compute_management: true
+  polars: true
+pipelines:

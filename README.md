@@ -1,3 +1,5 @@
+# mage_projects
+
 # Data Engineering Projects
 
 This repository aims to demonstrate how to build data pipelines and systems, providing a better understanding of concepts such as ETL, data lakes, and their roles in a data system. The core technologies used are Mage and Docker, upon which we will build and integrate other services to enhance our exploration and understanding.

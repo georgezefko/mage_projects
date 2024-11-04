@@ -1,0 +1,105 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_gold__sales_summary_fact
+  - iceberg_nessie_polars_gold__customer_sales_summary
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_gold__get_fact_orders
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: iceberg_nessie_polars_gold__get_fact_orders
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_gold__customer_sales_summary
+  - iceberg_nessie_polars_gold__export_tables
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_gold__sales_summary_fact
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_gold__get_fact_orders
+  uuid: iceberg_nessie_polars_gold__sales_summary_fact
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_source:
+      path: transformers/iceberg_nessie_polars_gold__customer_sales_summary.py
+  downstream_blocks:
+  - iceberg_nessie_polars_gold__export_tables
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_gold__customer_sales_summary
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_gold__sales_summary_fact
+  - iceberg_nessie_polars_gold__get_fact_orders
+  uuid: iceberg_nessie_polars_gold__customer_sales_summary
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_gold__export_tables
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - iceberg_nessie_polars_gold__customer_sales_summary
+  - iceberg_nessie_polars_gold__sales_summary_fact
+  uuid: iceberg_nessie_polars_gold__export_tables
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-09-23 11:38:38.647704+00:00'
+data_integration: null
+description: pyiceberg
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: iceberg_nessie_polars_gold
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- iceberg,
+- no_jvm
+- nessie
+type: python
+uuid: iceberg_nessie_polars_gold
+variables:
+  bucket_name: iceberg-demo-nessie
+  data_layer: gold
+  namespace: ecommerce
+  table_name: sales_fact
+variables_dir: /home/src/mage_data/mage
+widgets: []

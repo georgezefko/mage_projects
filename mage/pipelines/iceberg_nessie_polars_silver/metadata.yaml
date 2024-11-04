@@ -1,0 +1,175 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__create_fact_table
+  - iceberg_nessie_polars_silver_create_order_items
+  - iceberg_nessie_polars_silver__create_customers_dim
+  - iceberg_nessie_polars_silver__create_sellers_dim
+  - iceberg_nessie_polars_silver__create_products_dim
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__get_payments
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: iceberg_nessie_polars_silver__get_payments
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__export_fact_table
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__create_products_dim
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__get_payments
+  uuid: iceberg_nessie_polars_silver__create_products_dim
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__export_fact_table
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__create_customers_dim
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__get_payments
+  uuid: iceberg_nessie_polars_silver__create_customers_dim
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__export_fact_table
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__create_sellers_dim
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__get_payments
+  uuid: iceberg_nessie_polars_silver__create_sellers_dim
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__export_fact_table
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver_create_order_items
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__get_payments
+  uuid: iceberg_nessie_polars_silver_create_order_items
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__export_fact_table
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__create_fact_table
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__get_payments
+  uuid: iceberg_nessie_polars_silver__create_fact_table
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - iceberg_nessie_polars_silver__trigger_gold
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__export_fact_table
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__create_fact_table
+  - iceberg_nessie_polars_silver_create_order_items
+  - iceberg_nessie_polars_silver__create_sellers_dim
+  - iceberg_nessie_polars_silver__create_customers_dim
+  - iceberg_nessie_polars_silver__create_products_dim
+  uuid: iceberg_nessie_polars_silver__export_fact_table
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_silver__trigger_gold
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - iceberg_nessie_polars_silver__export_fact_table
+  uuid: iceberg_nessie_polars_silver__trigger_gold
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-09-23 07:13:29.560049+00:00'
+data_integration: null
+description: pyiceberg
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: iceberg_nessie_polars_silver
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- iceberg,
+- no_jvm
+- nessie
+type: python
+uuid: iceberg_nessie_polars_silver
+variables:
+  bucket_name: iceberg-demo-nessie
+  data_layer: silver
+  namespace: ecommerce
+  table_name: orders_fact
+variables_dir: /home/src/mage_data/mage
+widgets: []

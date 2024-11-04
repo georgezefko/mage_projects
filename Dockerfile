@@ -1,4 +1,4 @@
-FROM mageai/mageai:0.9.72
+FROM mageai/mageai:0.9.74
 
 
 ARG PROJECT_NAME=mage
@@ -12,6 +12,7 @@ COPY ${PROJECT_NAME} ${PROJECT_NAME}
 
 ENV USER_CODE_PATH=${USER_CODE_PATH}
 
+#-------Spark Related part-------------
 # Add Debian Bullseye repository
 RUN echo 'deb http://deb.debian.org/debian bullseye main' > /etc/apt/sources.list.d/bullseye.list
 
@@ -21,6 +22,7 @@ RUN apt-get update -y && \
 
 # Remove Debian Bullseye repository
 RUN rm /etc/apt/sources.list.d/bullseye.list
+#------------------------------------
 
 # Install custom Python libraries
 RUN pip3 install -r ${USER_CODE_PATH}/requirements.txt

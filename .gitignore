@@ -16,3 +16,5 @@ secrets/
 .pytest_cache
 minio_data/
 spark-config/
+metastore_db/
+.log

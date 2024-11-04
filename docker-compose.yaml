@@ -28,58 +28,69 @@ services:
       KAFKA_STREAM_TOPIC: ${KAFKA_STREAM_TOPIC}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MAGE_SLACK_WEBHOOK_URL: ${MAGE_SLACK_WEBHOOK_URL}
+    networks:
+      - nessie_network
+
+  dremio:
+    platform: linux/x86_64
+    image: dremio/dremio-oss:latest
+    ports:
+      - 9047:9047
+      - 31010:31010
+      - 32010:32010
+    container_name: dremio
+    networks:
+      - nessie_network
         
-  zookeeper:
-      image: confluentinc/cp-zookeeper:latest
-      container_name: zookeeper
-      environment:
-        ZOOKEEPER_CLIENT_PORT: 2181
-        ZOOKEEPER_TICK_TIME: 2000
-      ports:
-        - "2181:2181"
+  nessie:
+    image: ghcr.io/projectnessie/nessie:0.94.4
+    container_name: nessie
+    ports:
+      - "19120:19120"
+    environment:
+      - nessie.catalog.default-warehouse=warehouse
+      - nessie.catalog.warehouses.warehouse.location=s3://iceberg-demo-nessie/
+      - nessie.catalog.service.s3.default-options.region=us-east-1
+      - nessie.catalog.service.s3.default-options.path-style-access=true
+      - nessie.catalog.service.s3.default-options.access-key.name=${MINIO_ACCESS_KEY}
+      - nessie.catalog.service.s3.default-options.access-key.secret=${MINIO_SECRET_KEY}
+      - nessie.catalog.service.s3.default-options.endpoint=http://minio:9000/
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:latest
-    hostname: schema-registry
-    depends_on:
-      - kafka
+    networks:
+      - nessie_network
+    
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio
     ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9093,PLAINTEXT_INTERNAL://localhost:9092
-      SCHEMA_REGISTRY_DEBUG: 'true'
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    ports:
-      - "9092:9092"
-    expose:
-      - "9093"
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9093,PLAINTEXT_INTERNAL://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  
-  postgres:
-    image: debezium/postgres:15
-    container_name: postgres
-    hostname: postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-      
+      - './minio_data:/data'
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+      - MINIO_DOMAIN=storage
+      - MINIO_REGION_NAME=us-east-1
+      - MINIO_REGION=us-east-1
+    command: server --console-address ":9001" /data
+    networks:
+      - nessie_network
+  
+  minio-client:
+    image: minio/mc:latest
+    container_name: minio-client
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (mc alias set myminio http://minio:9000 zefko sparkTutorial); do echo 'waiting for minio...'; sleep 3; done;
+      mc mb myminio/iceberg-demo-nessie;
+      "
+    networks:
+      - nessie_network
+  
   starrocks-fe-0:
     image: starrocks/fe-ubuntu:latest
     hostname: starrocks-fe-0
@@ -105,6 +116,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+    networks:
+      - nessie_network
 
   starrocks-be-0:
     image: starrocks/be-ubuntu:latest
@@ -124,21 +137,14 @@ services:
       - starrocks-fe-0
     volumes:
       - singleton_be0_data:/opt/starrocks/be/storage
-  
-  minio:
-    container_name: minio
-    image: quay.io/minio/minio
-    ports:
-      - '9000:9000'
-      - '9001:9001'
-    volumes:
-      - './minio_data:/data'
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
-      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
-    command: server --console-address ":9001" /data
-  
+    networks:
+      - nessie_network
+
+networks:
+  nessie_network:
+    driver: bridge
+
 volumes:
+  minio_data:
   singleton_fe0_data:
   singleton_be0_data:
-  minio_data:
