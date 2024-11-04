@@ -1,0 +1,79 @@
+name: CI/CD Pipeline for kind Cluster
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*'
+      - 'feature/*'
+      - 'hotfix/*'
+  pull_request:
+    branches:
+      - main
+      - 'release/*'
+      - 'feature/*'
+      - 'hotfix/*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -r mage/requirements.txt
+
+      - name: Run unit tests and generate XML report
+        run: |
+          pytest --junitxml=results.xml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Determine version
+        id: semver
+        run: |
+          # Fetch tags, find the latest tag, and increment based on branch type
+          git fetch --tags
+          latest_tag=$(git describe --tags --abbrev=0 || echo "0.0.0")
+          branch_name=${{ github.ref_name }}
+
+          # Determine version increment type only on main
+          if [[ "$branch_name" == "main" ]]; then
+            new_version=$(python -c "import semver; print(semver.VersionInfo.parse('$latest_tag').bump_patch())")
+            echo "new_version=$new_version" >> $GITHUB_ENV
+          else
+            echo "new_version=development" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build -t localhost:5000/myapp:${{ env.new_version }} .
+
+      - name: Push Docker image to local registry
+        if: github.ref_name == 'main'
+        run: |
+          docker push localhost:5000/myapp:${{ env.new_version }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref_name == 'main'
+    steps:
+      - name: Update Kubernetes Deployment Image in kind Cluster
+        run: |
+          # Update the deployment to use the newly pushed image in the local registry
+          kubectl set image deployment/myapp myapp=localhost:5000/myapp:${{ env.new_version }}

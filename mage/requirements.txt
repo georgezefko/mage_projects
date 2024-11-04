@@ -14,3 +14,4 @@ pynessie
 pyiceberg[glue,s3fs,duckdb,pyarrow]
 PyDrive
 faker
+semver
