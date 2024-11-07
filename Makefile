@@ -39,3 +39,7 @@ create:
 #get latest image
 latest:
 	docker pull mageai/mageai:latest
+
+unit-tests:
+	@echo "Running unit tests..."
+	cd mage && python -m pytest -v -m "not DSItest" tests/unit
