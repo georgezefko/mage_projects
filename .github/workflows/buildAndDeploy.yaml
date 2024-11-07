@@ -9,7 +9,7 @@ on:
 
 jobs:
   build_image:
-    uses: ./.github/workflows/scripts/buildImage.yaml
+    uses: ./scripts/buildImage.yaml
 
 # Placeholder for future deployment steps, commented out
 # Uncomment and configure the following when ready to deploy to K8s
