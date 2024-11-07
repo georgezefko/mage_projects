@@ -1,4 +1,4 @@
-name: Build and Deploy to Kind Cluster
+name: Build and Deploy Trigger
 
 on:
   push:
@@ -7,14 +7,17 @@ on:
       - 'release/*'
   workflow_dispatch:
 
-extends:
-  template: ./.github/workflows/buildImage.yaml
+jobs:
+  build_image:
+    uses: ./.github/workflows/scripts/buildImage.yaml
 
-#Continuous Deployment
+# Placeholder for future deployment steps, commented out
+# Uncomment and configure the following when ready to deploy to K8s
 
 # jobs:
 #   deploy:
 #     runs-on: ubuntu-latest
+#     needs: build_image # Ensures build_image job completes before this runs
 
 #     steps:
 #       - name: Log in to Docker Hub
