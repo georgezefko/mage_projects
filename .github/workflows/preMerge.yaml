@@ -6,5 +6,6 @@ on:
       - '*'  # Triggers on all pull request branches
   workflow_dispatch: # Allows manual triggering if needed
 
-extends:
-  template: ./scripts/PreBuild.yaml
+jobs:
+  build_image:
+    uses: ./scripts/PreBuild.yaml
