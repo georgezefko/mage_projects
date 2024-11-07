@@ -1,0 +1,41 @@
+name: run pre build steps
+
+
+on:
+  workflow_call: # Allows this workflow to be called by another workflow
+steps:
+  - checkout: self
+    persistCredentials: true
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.8.13'
+      addToPath: true
+
+  - script: |
+      set -e
+      echo "##[group]Install Python dependencies"
+      python -m pip install --upgrade pip
+      pip install -r mage/requirements.txt
+      echo "##[endgroup]"
+    displayName: 'Install Python dependencies'
+
+  - script: |
+      set -e
+      echo "##[group]Install pre-commit hooks"
+      pre-commit install
+      echo "##[endgroup]"
+    displayName: 'Install pre-commit hooks'
+
+  - script: |
+      set -e
+      echo "##[group]Run Python Unit Tests"
+      make unit-tests
+      echo "##[endgroup]"
+    displayName: 'Run Python Unit Tests'
+
+  - script: |
+      echo "##[group]Run pre-commit hooks"
+      pre-commit run
+      echo "##[endgroup]"
+    displayName: 'Run pre-commit hooks'
