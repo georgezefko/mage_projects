@@ -1,10 +1,13 @@
 name: Pre-Merge Tests
 
 on:
-  push:
-    branches:
-      - '**'  # Run on all branches
   pull_request:
+    branches:
+      - '**'  # Only trigger on pull requests to any branch
+  push:
+    branches-ignore:
+      - main  # Ignore pushes to main to avoid duplicate runs
+      - 'release/*'  # Ignore pushes to release branches, so it only runs on PRs
 
 jobs:
   test:
@@ -21,9 +24,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade pip setuptools wheel
-          pip install -r mage/requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --prefer-binary -r mage/requirements.txt
 
       - name: Run unit tests
         run: make unit-tests
