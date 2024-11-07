@@ -1,9 +1,6 @@
 name: Build and Deploy Docker Image
 
 on:
-  pull_request:
-      branches:
-        - '**'  # Only trigger on pull requests to any branch
   push:
     branches:
       - main
