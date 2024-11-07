@@ -1,0 +1,12 @@
+trigger:
+  branches:
+    include:
+      - '*'
+
+pr:
+  branches:
+    include:
+      - '*'
+
+extends:
+  template: ./scripts/PreBuild.yaml

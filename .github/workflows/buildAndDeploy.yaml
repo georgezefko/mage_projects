@@ -1,0 +1,38 @@
+name: Build and Deploy to Kind Cluster
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*'
+  workflow_dispatch:
+
+extends:
+  template: ./.github/workflows/buildImage.yaml
+
+#Continuous Deployment
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Log in to Docker Hub
+#         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+#       - name: Pull Docker image
+#         env:
+#           IMAGE_VERSION: 'latest' # Set to the desired version if needed
+#         run: |
+#           docker pull ${{ secrets.DOCKER_USERNAME }}/your-app-name:${{ env.IMAGE_VERSION }}
+
+#       - name: Load image into Kind cluster
+#         run: |
+#           kind load docker-image ${{ secrets.DOCKER_USERNAME }}/your-app-name:${{ env.IMAGE_VERSION }} --name your-kind-cluster-name
+
+#       - name: Apply Kubernetes manifests
+#         env:
+#           IMAGE_NAME: "${{ secrets.DOCKER_USERNAME }}/your-app-name:${{ env.IMAGE_VERSION }}"
+#         run: |
+#           kubectl apply -f k8s/deployment.yaml
+#           kubectl apply -f k8s/service.yaml

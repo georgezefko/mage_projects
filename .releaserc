@@ -1,0 +1,31 @@
+{
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      ["@semantic-release/exec", {
+        "failCmd": "echo ${nextRelease.version} > /tmp/version",
+        "prepareCmd": "echo ${nextRelease.version} > /tmp/version",
+        "shell": "/bin/bash"
+      }],
+      ["@semantic-release/git", {
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci] \n\n${nextRelease.notes}"
+      }]
+    ],
+    "tagFormat": "v${version}",
+    "branches": [
+      "main",
+      "develop",
+      {
+        "name": "release/*",
+        "prerelease": "${name.replace(/^release\\//, '')}"
+      }
+    ]
+  }
+  

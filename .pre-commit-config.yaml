@@ -1,0 +1,31 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+    -   id: check-yaml
+        args: [--allow-multiple-documents]
+    -   id: check-added-large-files
+    -   id: debug-statements
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v2.7.1
+    hooks:
+    -   id: reorder-python-imports
+
+-   repo: https://github.com/ambv/black
+    rev: 22.3.0
+    hooks:
+    - id: black
+
+# -   repo: local
+#     hooks:
+#     -   id: make-unit-tests
+#         name: Run unit tests
+#         entry: make unit-tests
+#         language: system
+#         pass_filenames: false
+#         always_run: true
