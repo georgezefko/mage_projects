@@ -8,7 +8,10 @@ on:
     branches-ignore:
       - main  # Ignore pushes to main to avoid duplicate runs
       - 'release/*'  # Ignore pushes to release branches, so it only runs on PRs
-
+      
+concurrency:
+  group: pre-merge-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest

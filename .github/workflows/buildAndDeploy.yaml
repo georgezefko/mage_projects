@@ -6,6 +6,9 @@ on:
       - main
       - 'release/*'
 
+env:
+  DOCKER_REPO: zefko/mage_projects  # Define your Docker Hub repository name here
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,19 +18,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'  # Adjust as needed
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run unit tests
-        run: pytest
 
       - name: Get semantic version
         id: version
@@ -60,8 +50,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t your-docker-hub-username/your-image-name:${{ env.image_tag }} .
+          docker build -t ${{ env.DOCKER_REPO }}:${{ env.image_tag }} .
       
       - name: Push Docker image
         run: |
-          docker push your-docker-hub-username/your-image-name:${{ env.image_tag }}
+          docker push ${{ env.DOCKER_REPO }}:${{ env.image_tag }}
