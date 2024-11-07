@@ -1,6 +1,9 @@
 name: Build and Deploy Docker Image
 
 on:
+  pull_request:
+      branches:
+        - '**'  # Only trigger on pull requests to any branch
   push:
     branches:
       - main
@@ -25,7 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --user semantic-release
           export PATH="$HOME/.local/bin:$PATH"
-          semantic-release --dry-run
+          # Locate the exact path to semantic-release
+          SEMANTIC_RELEASE_PATH=$(find $HOME/.local/bin -name semantic-release)
+          # Run semantic-release using the located path
+          $SEMANTIC_RELEASE_PATH --dry-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
