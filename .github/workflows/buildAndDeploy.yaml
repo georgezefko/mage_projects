@@ -38,7 +38,7 @@ jobs:
           fi
 
       - name: Log semantic version
-        run: echo "Determined version: ${{ env.version }}"
+        run: echo "Determined version; ${{ env.version }}"
 
   publish:
     needs: build
