@@ -15,3 +15,7 @@ pyiceberg[glue,s3fs,duckdb,pyarrow]
 PyDrive
 faker
 semver
+pytest-mock==3.7.0
+pytest_cov==3.0.0
+pytest==7.1.1
+pre_commit==2.18.1

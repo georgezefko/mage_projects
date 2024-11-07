@@ -1,38 +1,57 @@
-name: Build and Deploy to Kind Cluster
+name: Build and Deploy Docker Image
 
 on:
   push:
     branches:
       - main
       - 'release/*'
-  workflow_dispatch:
 
-extends:
-  template: ./.github/workflows/buildImage.yaml
+env:
+  DOCKER_REPO: zefko/mage_projects  # Define your Docker Hub repository name here
 
-#Continuous Deployment
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.version.outputs.image_tag }}
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-#     steps:
-#       - name: Log in to Docker Hub
-#         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Get semantic version
+        id: version
+        run: |
+          pip install semantic-release
+          semantic-release --dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#       - name: Pull Docker image
-#         env:
-#           IMAGE_VERSION: 'latest' # Set to the desired version if needed
-#         run: |
-#           docker pull ${{ secrets.DOCKER_USERNAME }}/your-app-name:${{ env.IMAGE_VERSION }}
+      - name: Parse version
+        id: parse_version
+        run: |
+          VERSION=$(cat /tmp/version)
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "image_tag=v${{ github.ref_name == 'main' ? VERSION : 'pre-' + VERSION }}" >> $GITHUB_ENV
 
-#       - name: Load image into Kind cluster
-#         run: |
-#           kind load docker-image ${{ secrets.DOCKER_USERNAME }}/your-app-name:${{ env.IMAGE_VERSION }} --name your-kind-cluster-name
+      - name: Log semantic version
+        run: echo "Determined version: ${{ env.version }}"
 
-#       - name: Apply Kubernetes manifests
-#         env:
-#           IMAGE_NAME: "${{ secrets.DOCKER_USERNAME }}/your-app-name:${{ env.IMAGE_VERSION }}"
-#         run: |
-#           kubectl apply -f k8s/deployment.yaml
-#           kubectl apply -f k8s/service.yaml
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log into Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.DOCKER_REPO }}:${{ env.image_tag }} .
+      
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.DOCKER_REPO }}:${{ env.image_tag }}
