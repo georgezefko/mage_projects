@@ -26,15 +26,21 @@ jobs:
           semantic_version: 17
           extra_plugins: |
             @semantic-release/changelog@5
-            @semantic-release/exec@5
             @semantic-release/git@9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log Semantic Release Output (Debugging)
+        run: echo "Semantic version: ${{ steps.semantic.outputs.next_release_version }}"
 
       - name: Parse version
         id: parse_version
         run: |
           VERSION=${{ steps.semantic.outputs.next_release_version }}
+          if [ -z "$VERSION" ]; then
+            echo "Error: Semantic Release did not produce a version." >&2
+            exit 1
+          fi
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "image_tag=v${VERSION}" >> $GITHUB_ENV
             echo "::set-output name=image_tag::v${VERSION}"
@@ -44,7 +50,7 @@ jobs:
           fi
 
       - name: Log semantic version
-        run: echo "Determined version; ${{ steps.parse_version.outputs.image_tag }}"
+        run: echo "Determined version: ${{ steps.parse_version.outputs.image_tag }}"
 
   publish:
     needs: build
