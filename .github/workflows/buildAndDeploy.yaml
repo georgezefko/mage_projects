@@ -8,7 +8,7 @@ on:
 
 jobs:
   call-build-image:
-    uses: ./.github/workflows/buildImage.yaml  # Path to the reusable `buildImage.yaml`
+    uses: ./.github/workflows/scripts/buildImage.yaml  # Path to the reusable `buildImage.yaml`
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
