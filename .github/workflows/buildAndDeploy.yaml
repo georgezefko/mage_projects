@@ -6,59 +6,10 @@ on:
       - main
       - 'release/*'
 
-env:
-  DOCKER_REPO: zefko/mage_projects  # Define your Docker Hub repository name here
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.semantic.outputs.next_release_version }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v2
-        id: semantic  # Set an `id` to use its output variables
-        with:
-          semantic_version: 17
-          extra_plugins: |
-            @semantic-release/changelog@5
-            @semantic-release/exec@5
-            @semantic-release/git@9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Parse version
-        id: parse_version
-        run: |
-          VERSION=${{ steps.semantic.outputs.next_release_version }}
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "image_tag=v${VERSION}" >> $GITHUB_ENV
-          else
-            echo "image_tag=pre-${VERSION}" >> $GITHUB_ENV
-          fi
-
-      - name: Log semantic version
-        run: echo "Determined version; ${{ env.version }}"
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Log into Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ env.DOCKER_REPO }}:${{ env.image_tag }} .
-      
-      - name: Push Docker image
-        run: |
-          docker push ${{ env.DOCKER_REPO }}:${{ env.image_tag }}
+  call-build-image:
+    uses: ./.github/workflows/buildImage.yaml  # Path to the reusable `buildImage.yaml`
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
