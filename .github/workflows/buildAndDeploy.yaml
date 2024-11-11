@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.semantic.outputs.next_release_version }}
+      image_tag: ${{ steps.parse_version.outputs.image_tag }}
 
     steps:
       - name: Checkout code
@@ -21,7 +21,7 @@ jobs:
 
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v2
-        id: semantic  # Set an `id` to use its output variables
+        id: semantic
         with:
           semantic_version: 17
           extra_plugins: |
@@ -37,12 +37,14 @@ jobs:
           VERSION=${{ steps.semantic.outputs.next_release_version }}
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "image_tag=v${VERSION}" >> $GITHUB_ENV
+            echo "::set-output name=image_tag::v${VERSION}"
           else
             echo "image_tag=pre-${VERSION}" >> $GITHUB_ENV
+            echo "::set-output name=image_tag::pre-${VERSION}"
           fi
 
       - name: Log semantic version
-        run: echo "Determined version; ${{ env.version }}"
+        run: echo "Determined version; ${{ steps.parse_version.outputs.image_tag }}"
 
   publish:
     needs: build
@@ -57,8 +59,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.DOCKER_REPO }}:${{ env.image_tag }} .
-      
+          docker build -t ${{ env.DOCKER_REPO }}:${{ needs.build.outputs.image_tag }} .
+
       - name: Push Docker image
         run: |
-          docker push ${{ env.DOCKER_REPO }}:${{ env.image_tag }}
+          docker push ${{ env.DOCKER_REPO }}:${{ needs.build.outputs.image_tag }}
