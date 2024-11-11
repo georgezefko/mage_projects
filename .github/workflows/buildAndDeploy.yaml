@@ -35,6 +35,10 @@ jobs:
         id: parse_version
         run: |
           VERSION=${{ steps.semantic.outputs.next_release_version }}
+          if [[ -z "$VERSION" ]]; then
+            echo "Error: VERSION is empty, please check semantic release output."
+            exit 1
+          fi
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "image_tag=v${VERSION}" >> $GITHUB_ENV
           else
@@ -42,7 +46,7 @@ jobs:
           fi
 
       - name: Log semantic version
-        run: echo "Determined version; ${{ env.version }}"
+        run: echo "Determined version: ${{ env.image_tag }}"
 
   publish:
     needs: build
@@ -55,10 +59,13 @@ jobs:
       - name: Log into Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
+      - name: Log image tag
+        run: echo "Using image tag: ${{ needs.build.outputs.image_tag }}"
+
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.DOCKER_REPO }}:${{ env.image_tag }} .
+          docker build -t ${{ env.DOCKER_REPO }}:${{ needs.build.outputs.image_tag }} .
       
       - name: Push Docker image
         run: |
-          docker push ${{ env.DOCKER_REPO }}:${{ env.image_tag }}
+          docker push ${{ env.DOCKER_REPO }}:${{ needs.build.outputs.image_tag }}
