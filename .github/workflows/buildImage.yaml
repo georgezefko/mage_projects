@@ -1,54 +1,54 @@
-name: Build and Push Docker Image
+# name: Build and Push Docker Image
 
-on:
-  push:
-    branches:
-      - main
-      - 'release/*'
+# on:
+#   push:
+#     branches:
+#       - main
+#       - 'release/*'
 
-env:
-  APP_NAME: "mage_projects"  # Define the application name here
+# env:
+#   APP_NAME: "mage_projects"  # Define the application name here
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'  # Specify your Python version here
+#       - name: Set up Python
+#         uses: actions/setup-python@v2
+#         with:
+#           python-version: '3.x'  # Specify your Python version here
 
-      - name: Install dependencies
-        run: |
-          if [ -f mage/requirements.txt ]; then
-            pip install -r mage/requirements.txt
-          fi
+#       - name: Install dependencies
+#         run: |
+#           if [ -f mage/requirements.txt ]; then
+#             pip install -r mage/requirements.txt
+#           fi
 
-      - name: Determine Release Version
-        id: set_release
-        run: |
-          if [ -f /tmp/version ]; then
-            RELEASE=$(cat /tmp/version | tr -d '[:space:]')
-          else
-            RELEASE="${GITHUB_RUN_NUMBER}"
-          fi
-          echo "RELEASE_VERSION=$RELEASE" >> $GITHUB_ENV
-          echo "This is your release tag: $RELEASE"
-        # The `${GITHUB_RUN_NUMBER}` is a unique identifier for the workflow run, similar to a build ID.
+#       - name: Determine Release Version
+#         id: set_release
+#         run: |
+#           if [ -f /tmp/version ]; then
+#             RELEASE=$(cat /tmp/version | tr -d '[:space:]')
+#           else
+#             RELEASE="${GITHUB_RUN_NUMBER}"
+#           fi
+#           echo "RELEASE_VERSION=$RELEASE" >> $GITHUB_ENV
+#           echo "This is your release tag: $RELEASE"
+#         # The `${GITHUB_RUN_NUMBER}` is a unique identifier for the workflow run, similar to a build ID.
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+#       - name: Log in to Docker Hub
+#         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} .
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:latest
+#       - name: Build Docker image
+#         run: |
+#           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} .
+#           docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:latest
 
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }}
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:latest
+#       - name: Push Docker image
+#         run: |
+#           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }}
+#           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:latest
