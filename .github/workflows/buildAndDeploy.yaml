@@ -31,7 +31,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log Semantic Release Output (Debugging)
-        run: echo "Semantic version: ${{ steps.semantic.outputs.next_release_version }}"
+        run: echo "Semantic version; $VERSION"
+        env:
+          VERSION: ${{ steps.semantic.outputs.next_release_version }}
 
       - name: Parse version
         id: parse_version
@@ -50,7 +52,7 @@ jobs:
           fi
 
       - name: Log semantic version
-        run: echo "Determined version: ${{ steps.parse_version.outputs.image_tag }}"
+        run: echo "Determined version; ${{ steps.parse_version.outputs.image_tag }}"
 
   publish:
     needs: build
