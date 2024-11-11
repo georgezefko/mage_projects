@@ -1,7 +1,4 @@
-name: Build Docker Image
-
-# on:
-#   workflow_call: # This enables it to be included by another workflow
+name: Build and Push Docker Image
 
 on:
   push:
@@ -10,7 +7,7 @@ on:
       - 'release/*'
 
 env:
-  APP_NAME: "mage_projects" # Define the application name here
+  APP_NAME: "mage_projects"  # Define the application name here
 
 jobs:
   build:
@@ -18,33 +15,40 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          node-version: '18.15'
+          python-version: '3.x'  # Specify your Python version here
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Semantic Release - Generate Version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx -y -p @semantic-release/git -p @semantic-release/changelog -p @semantic-release/exec -p semantic-release@19 semantic-release
-          RELEASE_VERSION=$(if [ -f /tmp/version ]; then cat /tmp/version | tr -d '[:space:]'; else echo "latest"; fi)
-          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
-          
+          if [ -f mage/requirements.txt ]; then
+            pip install -r mage/requirements.txt
+          fi
+
+      - name: Determine Release Version
+        id: set_release
+        run: |
+          if [ -f /tmp/version ]; then
+            RELEASE=$(cat /tmp/version | tr -d '[:space:]')
+          else
+            RELEASE="${GITHUB_RUN_NUMBER}"
+          fi
+          echo "RELEASE_VERSION=$RELEASE" >> $GITHUB_ENV
+          echo "This is your release tag: $RELEASE"
+        # The `${GITHUB_RUN_NUMBER}` is a unique identifier for the workflow run, similar to a build ID.
+
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} .
-          docker tag ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:latest
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} .
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:latest
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:latest
