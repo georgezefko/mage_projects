@@ -1,16 +1,16 @@
-name: Build and Deploy Docker Image
+# name: Build and Deploy Docker Image
 
-on:
-  push:
-    branches:
-      - main
-      - 'release/*'
+# on:
+#   push:
+#     branches:
+#       - main
+#       - 'release/*'
 
-jobs:
-  call-build-image:
-    uses: ./.github/workflows/buildImage.yaml  # Path to the reusable `buildImage.yaml`
-    with:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+# jobs:
+#   call-build-image:
+#     uses: ./.github/workflows/buildImage.yaml  # Path to the reusable `buildImage.yaml`
+#     with:
+#       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+#       DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 

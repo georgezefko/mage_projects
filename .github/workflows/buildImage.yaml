@@ -1,7 +1,13 @@
 name: Build Docker Image
 
+# on:
+#   workflow_call: # This enables it to be included by another workflow
+
 on:
-  workflow_call: # This enables it to be included by another workflow
+  push:
+    branches:
+      - main
+      - 'release/*'
 
 env:
   APP_NAME: "mage_projects" # Define the application name here
