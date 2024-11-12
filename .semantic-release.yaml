@@ -1,8 +1,0 @@
-version_variable: mage/__init__.py:__version__
-branch: main
-upload_to_repository: false
-changelog_file: CHANGELOG.md
-commit_message: "chore(release): {version} [skip ci]\n\n{changelog}"
-post_release_hook: |
-  docker build -t {zefko/mage_projects}:{version} .
-  docker push {zefko/mage_projects}:{version}
