@@ -7,68 +7,35 @@ on:
       - 'release/*'
 
 env:
-  DOCKER_REPO: zefko/mage_projects  # Define your Docker Hub repository name here
+  DOCKER_REPO: zefko/mage_projects  # Define your Docker repository name here
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.parse_version.outputs.image_tag }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v2
-        id: semantic
         with:
-          semantic_version: 17
-          extra_plugins: |
-            @semantic-release/changelog@5
-            @semantic-release/git@9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Fetch all history including tags
 
-      - name: Log Semantic Release Output (Debugging)
-        run: echo "Semantic version; $VERSION"
-        env:
-          VERSION: ${{ steps.semantic.outputs.next_release_version }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-      - name: Parse version
-        id: parse_version
+      - name: Install Dependencies
         run: |
-          VERSION=${{ steps.semantic.outputs.next_release_version }}
-          if [ -z "$VERSION" ]; then
-            echo "Error: Semantic Release did not produce a version." >&2
-            exit 1
-          fi
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "image_tag=v${VERSION}" >> $GITHUB_ENV
-            echo "::set-output name=image_tag::v${VERSION}"
-          else
-            echo "image_tag=pre-${VERSION}" >> $GITHUB_ENV
-            echo "::set-output name=image_tag::pre-${VERSION}"
-          fi
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --prefer-binary -r mage/requirements.txt
 
-      - name: Log semantic version
-        run: echo "Determined version; ${{ steps.parse_version.outputs.image_tag }}"
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Log into Docker Hub
+      - name: Log into Docker Registry
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Build Docker image
+      - name: Run Semantic Release and Build Docker Image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
+          DOCKER_REPO: ${{ env.DOCKER_REPO }}
         run: |
-          docker build -t ${{ env.DOCKER_REPO }}:${{ needs.build.outputs.image_tag }} .
-
-      - name: Push Docker image
-        run: |
-          docker push ${{ env.DOCKER_REPO }}:${{ needs.build.outputs.image_tag }}
+          semantic-release publish
