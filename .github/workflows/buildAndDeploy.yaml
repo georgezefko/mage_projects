@@ -38,4 +38,4 @@ jobs:
           PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
           DOCKER_REPO: ${{ env.DOCKER_REPO }}
         run: |
-          semantic-release publish --debug
+          semantic-release publish
