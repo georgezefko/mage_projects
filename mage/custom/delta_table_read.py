@@ -21,7 +21,7 @@ def delta_table_read( *args, **kwargs):
     """
     minio_bucket = "delta-demo-bucket"
     table_name = "delta_demo_listings"
-    # Construct the full path to the Delta table in the MinIO bucket
+    # Construct the full path to the Delta table in the MinIO bucket.
     table_path = f"s3a://{minio_bucket}/delta/{table_name}"
     
     print(f"Attempting to read Delta table from: {table_path}")
