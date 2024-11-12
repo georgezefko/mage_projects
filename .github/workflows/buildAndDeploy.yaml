@@ -34,8 +34,8 @@ jobs:
 
       - name: Run Semantic Release and Build Docker Image
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
           DOCKER_REPO: ${{ env.DOCKER_REPO }}
         run: |
-          semantic-release publish
+          semantic-release publish --debug
