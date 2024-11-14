@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/georgezefko/mage_projects/compare/v1.0.1...v1.0.2) (2024-11-14)
+
+
+### Bug Fixes
+
+* **cicd:** debug ([958bd64](https://github.com/georgezefko/mage_projects/commit/958bd64bdeeee2e2f00c41b5b3e52921b7220d81))
+
 ## [1.0.1](https://github.com/georgezefko/mage_projects/compare/v1.0.0...v1.0.1) (2024-11-14)
 
 
