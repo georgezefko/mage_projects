@@ -40,6 +40,12 @@ jobs:
           fi
           echo "RELEASE=$RELEASE" >> $GITHUB_ENV
           echo "This is your release tag! $RELEASE"
+      
+      - name: Debug Variables
+        run: |
+          echo "DOCKERHUB_USERNAME: '$DOCKERHUB_USERNAME'"
+          echo "DOCKERHUB_REPO: '$DOCKERHUB_REPO'"
+          echo "RELEASE: '$RELEASE'"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
