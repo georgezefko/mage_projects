@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/georgezefko/mage_projects/compare/v1.0.0...v1.0.1) (2024-11-14)
+
+
+### Bug Fixes
+
+* **cicd:** secrets ([b24f31e](https://github.com/georgezefko/mage_projects/commit/b24f31ea6b49efde541ccc6a0848cff2a47f9fa5))
+
 # 1.0.0 (2024-11-14)
 
 
