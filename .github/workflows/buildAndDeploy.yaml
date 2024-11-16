@@ -70,8 +70,7 @@ jobs:
     if: github.event_name != 'pull_request'
 
     env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_REPO: mage_projects  # Replace with your Docker Hub repo name
+      DOCKERHUB_REPO: zefko/mage_projects   # Replace with your Docker Hub repo name
       IMAGE_NAME: mage_projects  # Use the same image name for GHCR
       REGISTRY: ghcr.io
       IMAGE_URL: ${{ github.repository }}  # This will be in the format 'username/repo'
@@ -108,7 +107,6 @@ jobs:
 
       - name: Debug Variables
         run: |
-          echo "DOCKERHUB_USERNAME: '$DOCKERHUB_USERNAME'"
           echo "DOCKERHUB_REPO: '$DOCKERHUB_REPO'"
           echo "RELEASE: '$RELEASE'"
           echo "IMAGE_URL: '$IMAGE_URL'"
@@ -129,14 +127,14 @@ jobs:
       - name: Build Docker Image
         run: |
           # Build the Docker image
-          docker build -t $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:${RELEASE} .
+          docker build -t $DOCKERHUB_REPO:${RELEASE} .
 
           # Tag the image for GitHub Container Registry
-          docker tag $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:${RELEASE} ${{ env.REGISTRY }}/${{ env.IMAGE_URL }}:${RELEASE}
+          docker tag $DOCKERHUB_REPO:${RELEASE} ${{ env.REGISTRY }}/${{ env.IMAGE_URL }}:${RELEASE}
 
       - name: Push Docker Image to Docker Hub
         run: |
-          docker push $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:${RELEASE}
+          docker push $DOCKERHUB_REPO:${RELEASE}
 
       - name: Push Docker Image to GitHub Container Registry
         run: |
