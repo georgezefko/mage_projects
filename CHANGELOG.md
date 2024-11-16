@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/georgezefko/mage_projects/compare/v1.0.2...v1.0.3) (2024-11-14)
+
+
+### Bug Fixes
+
+* **cicd:** changed repo ([20cda37](https://github.com/georgezefko/mage_projects/commit/20cda3738545d7f38b9df396dc62e184c69585d0))
+
 ## [1.0.2](https://github.com/georgezefko/mage_projects/compare/v1.0.1...v1.0.2) (2024-11-14)
 
 
