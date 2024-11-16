@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/georgezefko/mage_projects/compare/v1.0.3...v1.0.4) (2024-11-16)
+
+
+### Bug Fixes
+
+* **cicd:** fix github registry ([1fc24a3](https://github.com/georgezefko/mage_projects/commit/1fc24a36dfecb4732a5cb4617ab5255c1afe9e01))
+
 ## [1.0.3](https://github.com/georgezefko/mage_projects/compare/v1.0.2...v1.0.3) (2024-11-14)
 
 
