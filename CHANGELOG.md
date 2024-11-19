@@ -1,9 +1,9 @@
-# [1.1.0](https://github.com/georgezefko/mage_projects/compare/v1.0.4...v1.1.0) (2024-11-19)
+## [1.1.1-release-v1.0.4.1](https://github.com/georgezefko/mage_projects/compare/v1.1.0...v1.1.1-release-v1.0.4.1) (2024-11-19)
 
 
-### Features
+### Bug Fixes
 
-* **streaming:** added pipeline and updated docker compose ([11a5f9c](https://github.com/georgezefko/mage_projects/commit/11a5f9c5e8b97b2ed1642d1e196d82db3d5947c1))
+* **iceberg:** dummy fix ([cfb0b31](https://github.com/georgezefko/mage_projects/commit/cfb0b31ac23ae19b31bd5177667e95ee0bbc45f5))
 
 ## [1.0.4](https://github.com/georgezefko/mage_projects/compare/v1.0.3...v1.0.4) (2024-11-16)
 

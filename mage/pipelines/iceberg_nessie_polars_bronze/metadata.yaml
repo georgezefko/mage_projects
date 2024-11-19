@@ -13,7 +13,7 @@ blocks:
   language: python
   name: iceberg_nessie_polars_bronze__create_fake_data
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks: []
@@ -53,7 +53,7 @@ blocks:
   upstream_blocks:
   - iceberg_nessie_polars_bronze__transform_data
   uuid: iceberg_nessie_polars_bronze__write_to_data_lake
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     reduce_output: true
