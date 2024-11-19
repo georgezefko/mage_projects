@@ -1,16 +1,12 @@
-## [1.1.1](https://github.com/georgezefko/mage_projects/compare/v1.1.0...v1.1.1) (2024-11-19)
+## [1.1.2-dummyFix.1](https://github.com/georgezefko/mage_projects/compare/v1.1.1...v1.1.2-dummyFix.1) (2024-11-19)
 
 
 ### Bug Fixes
 
-* **iceberg:** dummy fix ([cfb0b31](https://github.com/georgezefko/mage_projects/commit/cfb0b31ac23ae19b31bd5177667e95ee0bbc45f5))
-
-## [1.1.1-release-v1.0.4.1](https://github.com/georgezefko/mage_projects/compare/v1.1.0...v1.1.1-release-v1.0.4.1) (2024-11-19)
-
+* **iceberg:** corrected comments ([78286f1](https://github.com/georgezefko/mage_projects/commit/78286f10900831088ff7881d6ee9150015f274c0))
 
 ### Bug Fixes
 
-* **iceberg:** dummy fix ([cfb0b31](https://github.com/georgezefko/mage_projects/commit/cfb0b31ac23ae19b31bd5177667e95ee0bbc45f5))
 
 ## [1.0.4](https://github.com/georgezefko/mage_projects/compare/v1.0.3...v1.0.4) (2024-11-16)
 
