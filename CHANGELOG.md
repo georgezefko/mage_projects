@@ -1,3 +1,10 @@
+## [1.1.2-dummyFix.1](https://github.com/georgezefko/mage_projects/compare/v1.1.1...v1.1.2-dummyFix.1) (2024-11-19)
+
+
+### Bug Fixes
+
+* **iceberg:** corrected comments ([78286f1](https://github.com/georgezefko/mage_projects/commit/78286f10900831088ff7881d6ee9150015f274c0))
+
 ### Bug Fixes
 
 
