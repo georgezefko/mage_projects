@@ -135,7 +135,7 @@ def load_data(*args, **kwargs):
     
     geolocation = generate_geolocation(n_rows)
 
-    # This structure need for dynamic blocks to perform downstream process in parallel
+    # This structure need for dynamic blocks to perform downstream process in parallel.
     # At the moment it supports Pandas dataframes but doesn't work for Polars dataframes
     return [[customers, orders, payments, reviews, products, sellers, items, geolocation]]
 
