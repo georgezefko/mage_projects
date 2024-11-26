@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/georgezefko/mage_projects/compare/v1.1.1...v1.1.2) (2024-11-26)
+
+
+### Bug Fixes
+
+* **tests:** corrected tests command ([2f20b3b](https://github.com/georgezefko/mage_projects/commit/2f20b3bd0c11d2a10bbd30bbec73ca78a0bad254))
+
 ## [1.1.1](https://github.com/georgezefko/mage_projects/compare/v1.1.0...v1.1.1) (2024-11-21)
 
 
