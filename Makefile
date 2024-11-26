@@ -42,4 +42,4 @@ latest:
 
 unit-tests:
 	@echo "Running unit tests..."
-	cd mage && python -m pytest -v -m "not DSItest" tests/unit
+	cd mage && python -m pytest tests/unit
