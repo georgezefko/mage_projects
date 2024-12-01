@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/georgezefko/mage_projects/compare/v1.1.2...v1.1.3) (2024-12-01)
+
+
+### Bug Fixes
+
+* **docs:** added third project ([db97f8c](https://github.com/georgezefko/mage_projects/commit/db97f8c1efbdf06c9090a6c1d5b9f54e6d9ea380))
+
 ## [1.1.2](https://github.com/georgezefko/mage_projects/compare/v1.1.1...v1.1.2) (2024-11-26)
 
 
