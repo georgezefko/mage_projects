@@ -33,3 +33,12 @@ You can find the relevant article with a detailed guide here: [Medium blog]()
 The isolated code for that project is here: [IcebergNessie](https://github.com/georgezefko/mage_projects/tree/feat/icebergNessie)
 
 A small practicality for this project is that you can either run the pipelines one by one or just trigger the bronze one and if successfull it will trigger silver and gold. Then you can see the results in MinIO, Nessie and query them from any SQL engine you like.
+
+### 3. DevOps for Data Engineers Part 1:Setting Up CI/CD Pipelines with Docker, Semantic Release, and Trunk-Based Development.
+
+In the third tutorial we go a bit beyond the core Data Engineering projects and we focus on how we set up a proper CI/CD pipeline.
+We utilize github actions for execution and leverage concepts such as semantic versioning and conventional commits to creates a robust framework for managing code changes, versioning, and communication within our development workflow.
+
+You can find the relevant article with explanations here: [Substack](https://georgioszefkilis.substack.com/p/devops-for-data-engineers-part-1)
+
+There is no isolated branch for this project since all the code can be found under the ***.github*** folder.
