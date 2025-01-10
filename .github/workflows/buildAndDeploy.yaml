@@ -71,8 +71,8 @@ jobs:
           context: .
           push: true
           tags: |
-            $DOCKERHUB_REPO:${{ env.RELEASE }}
-            $REGISTRY/${{ env.IMAGE_URL }}:${{ env.RELEASE }}
+            ${{ env.DOCKERHUB_REPO }}:${{ env.RELEASE }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_URL }}:${{ env.RELEASE }}
           platforms: linux/amd64,linux/arm64
 
       - name: Release Setup
