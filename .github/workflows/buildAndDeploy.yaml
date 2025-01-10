@@ -16,25 +16,37 @@ jobs:
       IMAGE_NAME: mage_projects  # Use the same image name for GHCR
       REGISTRY: ghcr.io
       IMAGE_URL: ${{ github.repository }}  # This will be in the format 'username/repo'
+      RELEASE: ${{ github.run_number }}     # Default to run number if not set
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.15'
 
-      - name: Release Setup
-        run: |
-          npx -y -p @semantic-release/git \
-                 -p @semantic-release/changelog \
-                 -p @semantic-release/exec \
-                 -p semantic-release@19 \
-                 semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set Release Variable
         id: set_release
@@ -53,31 +65,22 @@ jobs:
           echo "RELEASE: '$RELEASE'"
           echo "IMAGE_URL: '$IMAGE_URL'"
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+      - name: Build and Push Docker Image to Docker Hub and GHCR
+        uses: docker/build-push-action@v4
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          context: .
+          push: true
+          tags: |
+            $DOCKERHUB_REPO:${{ env.RELEASE }}
+            $REGISTRY/${{ env.IMAGE_URL }}:${{ env.RELEASE }}
+          platforms: linux/amd64,linux/arm64
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build Docker Image
+      - name: Release Setup
         run: |
-          # Build the Docker image
-          docker build -t $DOCKERHUB_REPO:${RELEASE} .
-
-          # Tag the image for GitHub Container Registry
-          docker tag $DOCKERHUB_REPO:${RELEASE} ${{ env.REGISTRY }}/${{ env.IMAGE_URL }}:${RELEASE}
-
-      - name: Push Docker Image to Docker Hub
-        run: |
-          docker push $DOCKERHUB_REPO:${RELEASE}
-
-      - name: Push Docker Image to GitHub Container Registry
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_URL }}:${RELEASE}
+          npx -y -p @semantic-release/git \
+                 -p @semantic-release/changelog \
+                 -p @semantic-release/exec \
+                 -p semantic-release@19 \
+                 semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
