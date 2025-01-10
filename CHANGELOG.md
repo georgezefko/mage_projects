@@ -1,3 +1,12 @@
+## [1.1.4](https://github.com/georgezefko/mage_projects/compare/v1.1.3...v1.1.4) (2025-01-10)
+
+
+### Bug Fixes
+
+* **workflows:** reorder steps ([cd4f67e](https://github.com/georgezefko/mage_projects/commit/cd4f67edd6b72f14fb89721e3fbabc105767b93c))
+* **worklows:** added multiple platforms ([a573672](https://github.com/georgezefko/mage_projects/commit/a573672862e64d5642a20cf0d06aa33ce942fcf5))
+* **worklows:** updated tags ([0c2fec6](https://github.com/georgezefko/mage_projects/commit/0c2fec6bca89478048477da65f8e5c6b39979556))
+
 ## [1.1.3](https://github.com/georgezefko/mage_projects/compare/v1.1.2...v1.1.3) (2024-12-01)
 
 
