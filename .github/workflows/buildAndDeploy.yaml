@@ -47,6 +47,16 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Release Setup
+        run: |
+          npx -y -p @semantic-release/git \
+                 -p @semantic-release/changelog \
+                 -p @semantic-release/exec \
+                 -p semantic-release@19 \
+                 semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set Release Variable
         id: set_release
@@ -74,13 +84,3 @@ jobs:
             ${{ env.DOCKERHUB_REPO }}:${{ env.RELEASE }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_URL }}:${{ env.RELEASE }}
           platforms: linux/amd64,linux/arm64
-
-      - name: Release Setup
-        run: |
-          npx -y -p @semantic-release/git \
-                 -p @semantic-release/changelog \
-                 -p @semantic-release/exec \
-                 -p semantic-release@19 \
-                 semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
