@@ -14,6 +14,61 @@ blocks:
   type: data_loader
   upstream_blocks: []
   uuid: bauplan_bronze__ingestion
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    dynamic: true
+    file_source:
+      path: data_loaders/iceberg_nessie_polars_bronze__create_fake_data.py
+  downstream_blocks:
+  - iceberg_nessie_polars_bronze__transform_data
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_bronze__create_fake_data
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: iceberg_nessie_polars_bronze__create_fake_data
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_source:
+      path: transformers/iceberg_nessie_polars_bronze__transform_data.py
+    reduce_output: true
+  downstream_blocks:
+  - bauplan_bronze__write_to_data_lake
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: iceberg_nessie_polars_bronze__transform_data
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - iceberg_nessie_polars_bronze__create_fake_data
+  uuid: iceberg_nessie_polars_bronze__transform_data
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: bauplan_bronze__write_to_data_lake
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - iceberg_nessie_polars_bronze__transform_data
+  uuid: bauplan_bronze__write_to_data_lake
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
