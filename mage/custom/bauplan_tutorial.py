@@ -57,21 +57,25 @@ def transform_custom(*args, **kwargs):
     # Currently for Bauplan you need to create branch using username.branch_name
     BRANCH_NAME = f'zefko.{DATA_LAYER}'
     BRANCH_NAME_NEW = f'zefko.{DATA_LAYER}_test'
-    TABLE_NAME = "zefko_taxi_bronze"
+    TABLE_NAME = "orders_fct"
     # Estabslih connection with Bauplan client
     client = bauplan.Client(api_key=BAUPLAN_API)
 
     # Get the main branch
     main_branch = client.get_branch('main')
+    
+    
 
-    # Generate Bronze brache
-    bronze_branch = generate_branch(BRANCH_NAME, main_branch, client)
+
+
+    # Generate Silver branch
+    silver_branch = generate_branch(BRANCH_NAME, main_branch, client)
 
     # Create Namespaces
-    namespace = generate_namespace(NAMESPACE, bronze_branch, client)
+    #namespace = generate_namespace(NAMESPACE, bronze_branch, client)
 
-    # Generate Branch from Bronze
-    wap_branch = generate_branch(BRANCH_NAME_NEW, bronze_branch, client)
+    # Generate Branch from Silver
+    wap_branch = generate_branch(BRANCH_NAME_NEW, silver_branch, client)
 
     # Generate the namespace in the new branch
     wap_namespace = generate_namespace(NAMESPACE, wap_branch, client)
@@ -79,33 +83,36 @@ def transform_custom(*args, **kwargs):
     
     client.create_table(
     table=TABLE_NAME,
-    search_uri='s3://alpha-hello-bauplan/green-taxi/*.parquet',
+    search_uri='s3://alpha-hello-bauplan/fakerolist/*.parquet',
     namespace=wap_namespace,
     branch=wap_branch,
     # just in case the test table is already there for other reasons
-    verbose=False,
+    #verbose=False,
     replace=True  
     )
 
     # Import the data
-    client.import_data(
-    table=TABLE_NAME,
-    search_uri='s3://alpha-hello-bauplan/green-taxi/*.parquet',
-    namespace=wap_namespace,
-    branch=wap_branch,
-    verbose=False,
-    preview='on'
-    )
+    #client.import_data(
+    #table=TABLE_NAME,
+    #search_uri='s3://alpha-hello-bauplan/green-taxi/*.parquet',
+    #namespace=wap_namespace,
+    #branch=wap_branch,
+    #verbose=False,
+    #preview='on'
+    #)
 
 
     table = client.query(
-    query='SELECT * FROM ecommmerce.zefko_taxi_bronze',
+    query='SELECT * FROM customers',
     max_rows = 100,
-    ref=wap_branch,
+    ref=main_branch,
+    namespace = 'fakerolist'
     )
 
     df = table.to_pandas()
     return df
+    #for table in client.get_tables(ref= 'main'):
+    #    print(table.name, table.kind)
 
 
 @test
