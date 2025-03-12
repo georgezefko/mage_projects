@@ -107,3 +107,4 @@ default:
     source: trino-cli                         # Optional
     user: admin
     verify: /path/to/your/ca.crt              # Optional
+  KAFKA_BROKERS: "{{ env_var('KAFKA_BROKERS') }}"
