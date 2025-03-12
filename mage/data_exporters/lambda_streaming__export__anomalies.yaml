@@ -1,9 +1,7 @@
 connector_type: kafka
 bootstrap_server: "{{ env_var('KAFKA_BROKERS') }}"
-topic: 'iot-telemetry'
-include_metadata: false
+topic: 'iot-anomalies'
 api_version: 0.10.2
-consumer_group: 'lambda_streaming_anomalies'
 
 # Uncomment the config below to use SSL config
 # security_protocol: "SSL"
@@ -20,8 +18,3 @@ consumer_group: 'lambda_streaming_anomalies'
 #   mechanism: "PLAIN"
 #   username: username
 #   password: password
-
-# Uncomment the config below to use protobuf schema to deserialize message
-# serde_config:
-#   serialization_method: PROTOBUF
-#   schema_classpath: "path.to.schema.SchemaClass"
