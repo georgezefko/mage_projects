@@ -33,5 +33,5 @@ def transform(messages: List[Dict], *args, **kwargs):
                 "anomaly_type": "high_temperature",
                 "description": f"Temperature exceeded threshold: {message['temperature']} °C"
             })
-        print('anomalies',anomalies)
-        return anomalies
+    print('anomalies',anomalies)
+    return anomalies

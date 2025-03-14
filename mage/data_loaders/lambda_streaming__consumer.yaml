@@ -4,6 +4,7 @@ topic: 'iot-telemetry'
 include_metadata: false
 api_version: 0.10.2
 consumer_group: 'lambda_streaming_anomalies'
+batch_size: 1
 
 # Uncomment the config below to use SSL config
 # security_protocol: "SSL"
