@@ -1,31 +1,33 @@
 blocks:
 - all_upstream_blocks_executed: true
-  color: teal
-  configuration: {}
+  color: null
+  configuration:
+    file_source:
+      path: data_loaders/bauplan_silver__create_customer_dim.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: Bauplan_tutorial
+  name: bauplan_silver__create_customer_dim
   retry_config: null
-  status: executed
+  status: failed
   timeout: null
-  type: custom
+  type: data_loader
   upstream_blocks: []
-  uuid: bauplan_tutorial
+  uuid: bauplan_silver__create_customer_dim
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
 conditionals: []
 created_at: '2025-01-25 13:21:12.378984+00:00'
 data_integration: null
-description: null
+description: Bauplan tutorial
 executor_config: {}
 executor_count: 1
 executor_type: null
 extensions: {}
-name: bauplan_bronze
+name: bauplan_gold
 notification_config: {}
 remote_variables_dir: null
 retry_config: {}
@@ -33,12 +35,17 @@ run_pipeline_in_one_process: false
 settings:
   triggers: null
 spark_config: {}
-tags: []
+tags:
+- bauplan
+- wap
+- gold
 type: python
-uuid: bauplan_bronze
+uuid: bauplan_gold
 variables:
-  bucket_name: bauplan-demo
-  data_layer: bronze
-  namespace: ecommmerce
+  data_layer: gold
+  model: bauplan_gold
+  model_test: bauplan_gold_test
+  namespace: fakerolist
+  source_branch: zefko.silver
 variables_dir: /home/src/mage_data/mage
 widgets: []

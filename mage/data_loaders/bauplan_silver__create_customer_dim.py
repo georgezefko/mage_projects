@@ -39,33 +39,52 @@ def load_data(*args, **kwargs):
         DATA_LAYER = kwargs['data_layer']
         BRANCH_NAME = f'zefko.{DATA_LAYER}'
         BRANCH_NAME_NEW = f'zefko.{DATA_LAYER}_test'
+        MODEL = kwargs['model']
+        MODEL_TEST = kwargs['model_test']
+        SOURCE_BRANCH = kwargs['source_branch']
+        print(SOURCE_BRANCH)
 
         # Estabslih connection with Bauplan client
         client = bauplan.Client(api_key=BAUPLAN_API)
         # Get the main branch
-        main_branch = client.get_branch('main')
+        medallion_branch_source = client.get_branch(SOURCE_BRANCH)
+        print(medallion_branch_source)
         
-        # Generate Silver branch
-        silver_branch = generate_branch(BRANCH_NAME, main_branch, client)
-
+        # Generate medallion branch
+        medallion_branch = generate_branch(BRANCH_NAME, medallion_branch_source, client)
+        print(medallion_branch)
         # Generate Branch from Silver
-        wap_branch = generate_branch(BRANCH_NAME_NEW, silver_branch, client)
-
+        wap_branch = generate_branch(BRANCH_NAME_NEW, medallion_branch, client)
+        print(wap_branch)
         d = dirname(dirname(abspath(__file__)))
         run_state = client.run(
-            project_dir = f"{d}/utils/bauplan_silver",
+            project_dir = f"{d}/utils/{MODEL}",
             ref = wap_branch,
             namespace = NAMESPACE
         )
         if run_state.job_status != "SUCCESS":
             raise Exception("Error during bauplan_tutorial!")
 
+        # run the quality checks
+        d = dirname(dirname(abspath(__file__)))
+        run_state = client.run(
+            project_dir = f"{d}/utils/{MODEL_TEST}",
+            ref = wap_branch,
+            namespace = NAMESPACE
+        )
+        if run_state.job_status != "SUCCESS":
+            raise Exception("Error during bauplan_tutorial!")
+
+        client.merge_branch(
+        source_ref = wap_branch,
+        into_branch = medallion_branch
+        )
         table = client.query(
         query=f'''
-            SELECT * from orders_fct
+            SELECT * from sales_summary_fct
             ''',
         max_rows = 100,
-        ref=wap_branch,
+        ref = medallion_branch,
         namespace = NAMESPACE
         )
 
