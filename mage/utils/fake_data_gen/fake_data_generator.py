@@ -17,7 +17,7 @@ bpln_client = bauplan.Client()
 S3_BUCKET_NAME = 'alpha-hello-bauplan'
 S3_FOLDER = 'fakerolist'
 NAMESPACE = 'fakerolist'
-INGESTION_BRANCH = 'jacopo.fakerolist_ingestion_{}'
+INGESTION_BRANCH = 'username.fakerolist_ingestion_{}' #username is a placehokder switch it to your own
 
 
 def save_to_s3(df, table_name, bucket, folder):
