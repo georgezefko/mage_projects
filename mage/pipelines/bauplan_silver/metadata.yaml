@@ -12,7 +12,7 @@ blocks:
   language: python
   name: bauplan_silver__create_customer_dim
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks: []
@@ -43,8 +43,10 @@ tags:
 type: python
 uuid: bauplan_silver
 variables:
-  bucket_name: bauplan-demo
   data_layer: silver
-  namespace: fakerolist
+  model: bauplan_silver
+  model_test: bauplan_silver_test
+  namespace: fakerolist_silver
+  test_table: customers_dim
 variables_dir: /home/src/mage_data/mage
 widgets: []

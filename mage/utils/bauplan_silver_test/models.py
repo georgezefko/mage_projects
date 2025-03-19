@@ -5,7 +5,7 @@ import bauplan
 @bauplan.python('3.11', pip={'duckdb': '1.0.0'})
 @bauplan.model()
 def customers_dim_check(
-        customers = bauplan.Model('fakerolist.customers_dim'),
+        customers = bauplan.Model('fakerolist_silver.customers_dim'),
 
 ):
     import duckdb

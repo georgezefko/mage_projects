@@ -5,11 +5,11 @@ import bauplan
 @bauplan.python('3.11', pip={'polars': '1.19.0'})
 @bauplan.model(materialization_strategy="REPLACE", name = 'sales_summary_fct')
 def sales_summary_fct(
-        orders_fact = bauplan.Model('fakerolist.orders_fct'),
-        orders_item_fct = bauplan.Model('fakerolist.order_item_fct'),
-        customers_dim = bauplan.Model('fakerolist.customers_dim'),
-        sellers_dim = bauplan.Model('fakerolist.sellers_dim'),
-        products_dim = bauplan.Model('fakerolist.products_dim'),
+        orders_fact = bauplan.Model('fakerolist_silver.orders_fct'),
+        orders_item_fct = bauplan.Model('fakerolist_silver.order_item_fct'),
+        customers_dim = bauplan.Model('fakerolist_silver.customers_dim'),
+        sellers_dim = bauplan.Model('fakerolist_silver.sellers_dim'),
+        products_dim = bauplan.Model('fakerolist_silver.products_dim'),
 
 ):
     import polars as pl
@@ -55,29 +55,29 @@ def sales_summary_fct(
 
     return sales_summary_fact
 
-# # Create sellers dimension
-# @bauplan.python('3.11', pip={'polars': '1.19.0'})
-# @bauplan.model(materialization_strategy='REPLACE', name = 'customer_sales_summary')
-# def customers_sales_summary(
-#     customers = bauplan.Model(
-#     'fakerolist.customers_dim',
-#     ),
-#     sales_fct = bauplan.Model(
-#     'fakerolist.sales_summary_fct',
-#     )
-#     ) :
-#     import polars as pl
-#     sales_fct = pl.from_arrow(sales_fct)
-#     customers = pl.from_arrow(customers)
-#     # Total revenue per order
-#     customer_sales_summary = sales_fct.groupby('customer_id').agg([
-#     pl.count('order_id').alias('total_orders'),  # Count of orders per customer
-#     pl.sum('payment_value').alias('total_spent'),  # Total amount spent by customer
-#     pl.mean('review_score').alias('average_review_score'),  # Average review score
-#     pl.max('order_purchase_timestamp').alias('recency_of_last_order')  # Most recent order timestamp
-#     ])
+# Create sellers dimension
+@bauplan.python('3.11', pip={'polars': '1.19.0'})
+@bauplan.model(materialization_strategy='REPLACE', name = 'customer_sales_summary')
+def customers_sales_summary(
+    customers = bauplan.Model(
+    'fakerolist_silver.customers_dim',
+    ),
+    sales_fct = bauplan.Model(
+    'fakerolist_gold.sales_summary_fct',
+    )
+    ) :
+    import polars as pl
+    sales_fct = pl.from_arrow(sales_fct)
+    customers = pl.from_arrow(customers)
+    # Total revenue per order
+    customer_sales_summary = sales_fct.group_by('customer_id').agg([
+    pl.col('order_id').count().alias('total_orders'),  # Count of orders per customer
+    pl.col('payment_value').sum().alias('total_spent'),  # Total amount spent by customer
+    pl.col('review_score').mean().alias('average_review_score'),  # Average review score
+    pl.col('order_purchase_timestamp').max().alias('recency_of_last_order')  # Most recent order timestamp
+    ])
 
-#     # Join with customer_dim to get additional customer information
-#     customer_sales_summary = customer_sales_summary.join(customers, on='customer_id', how='left').to_arrow()
+    # Join with customer_dim to get additional customer information
+    customer_sales_summary = customer_sales_summary.join(customers, on='customer_id', how='left').to_arrow()
     
-#     return customer_sales_summary
+    return customer_sales_summary

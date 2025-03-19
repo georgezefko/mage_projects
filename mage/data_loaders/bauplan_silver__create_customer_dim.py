@@ -9,21 +9,44 @@ import bauplan
 import polars as pl
 import pyarrow
 from os.path import dirname, abspath
+import logging
+from mage.utils.logger import setup_logger
 
-def generate_branch(new_branch, from_branch, client):
+
+# Setup logger
+default_log_level = "INFO"
+log_level_str = os.environ.get("LOG_LEVEL", default_log_level)
+log_level = getattr(logging, log_level_str.upper())
+logger = setup_logger(__name__, log_level=log_level)
+
+
+
+def create_or_get_branch(client, branch_name, main_branch):
     """
-    Helper function to create branches
+    Create a new branch or retrieve an existing one.
     """
-    if client.has_branch(new_branch):
-        #raise ValueError("Branch already exists, please choose another name")
-        pass
+    if client.has_branch(branch_name):
+        logger.info(f"Branch '{branch_name}' already exists. Retrieving...")
+        branch = client.get_branch(branch_name)
     else:
-        client.create_branch(new_branch, from_ref=from_branch)
+        logger.info(f"Creating new branch '{branch_name}' from '{main_branch}'...")
+        branch = client.create_branch(branch_name, from_ref=main_branch)
 
-    assert client.has_branch(new_branch), "Branch not found"
-
-    branch = client.get_branch(new_branch)
+    assert client.has_branch(branch), f"{branch_name} not found"
     return branch.name
+
+def create_namespace_if_not_exists(client, namespace, branch):
+    """
+    Create a namespace within a branch if it doesn't already exist.
+    """
+    if client.has_namespace(namespace, branch):
+        logger.warning(f"Namespace '{namespace}' already exists in branch '{branch}'. Skipping creation.")
+        return
+    else:
+        logger.info(f"Creating namespace '{namespace}' in branch '{branch}'...")
+        client.create_namespace(namespace, branch)
+
+    assert client.has_namespace(namespace, branch), f"{namespace} not found in branch {branch}"
 
 @data_loader
 def load_data(*args, **kwargs):
@@ -38,24 +61,21 @@ def load_data(*args, **kwargs):
         BAUPLAN_API =  os.getenv("BAUPLAN_API")
         DATA_LAYER = kwargs['data_layer']
         BRANCH_NAME = f'zefko.{DATA_LAYER}'
-        BRANCH_NAME_NEW = f'zefko.{DATA_LAYER}_test'
         MODEL = kwargs['model']
         MODEL_TEST = kwargs['model_test']
-        SOURCE_BRANCH = kwargs['source_branch']
-        print(SOURCE_BRANCH)
 
         # Estabslih connection with Bauplan client
         client = bauplan.Client(api_key=BAUPLAN_API)
         # Get the main branch
-        medallion_branch_source = client.get_branch(SOURCE_BRANCH)
-        print(medallion_branch_source)
+        main_branch = client.get_branch('main')
         
-        # Generate medallion branch
-        medallion_branch = generate_branch(BRANCH_NAME, medallion_branch_source, client)
-        print(medallion_branch)
-        # Generate Branch from Silver
-        wap_branch = generate_branch(BRANCH_NAME_NEW, medallion_branch, client)
-        print(wap_branch)
+
+        #Generate new Branch
+        wap_branch = create_or_get_branch(client, BRANCH_NAME, main_branch)
+
+        # Generate namespace
+        _ = create_namespace_if_not_exists(client, NAMESPACE, wap_branch)
+        
         d = dirname(dirname(abspath(__file__)))
         run_state = client.run(
             project_dir = f"{d}/utils/{MODEL}",
@@ -77,19 +97,24 @@ def load_data(*args, **kwargs):
 
         client.merge_branch(
         source_ref = wap_branch,
-        into_branch = medallion_branch
+        into_branch= main_branch
         )
+
+        client.delete_branch(wap_branch)
+        
+        # test to ensure the table merge correctly
         table = client.query(
         query=f'''
-            SELECT * from sales_summary_fct
+            SELECT * from {test_table}
             ''',
         max_rows = 100,
-        ref = medallion_branch,
+        ref=main_branch,
         namespace = NAMESPACE
         )
 
         test = table.to_pandas()
-        return test 
+
+        return table 
 
 
     

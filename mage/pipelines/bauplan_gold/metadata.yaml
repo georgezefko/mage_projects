@@ -45,7 +45,7 @@ variables:
   data_layer: gold
   model: bauplan_gold
   model_test: bauplan_gold_test
-  namespace: fakerolist
-  source_branch: zefko.silver
+  namespace: fakerolist_gold
+  test_table: customer_sales_summary
 variables_dir: /home/src/mage_data/mage
 widgets: []
