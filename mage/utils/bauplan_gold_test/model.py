@@ -23,14 +23,9 @@ def customers_dim_check(
             HAVING COUNT(*) > 1
     """
 
-    nulls = """
-            SELECT *
-            FROM customers
-            WHERE customer_id IS NULL
-    """
     check_one = con.execute(duplicates).arrow()
-    check_two = con.execute(nulls).arrow()
 
-    #assert check_one.num_rows == 0, "customers_dim has duplicates values"
-    assert check_two.num_rows == 0, "customer id cannot be null"
+    assert check_one.num_rows == 0, "customers_dim has duplicates values"
+    
+    
     return check_one

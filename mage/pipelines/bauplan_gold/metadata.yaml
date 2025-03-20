@@ -1,21 +1,21 @@
 blocks:
 - all_upstream_blocks_executed: true
-  color: null
+  color: teal
   configuration:
     file_source:
-      path: data_loaders/bauplan_silver__create_customer_dim.py
+      path: custom/bauplan__wap_dag.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: bauplan_silver__create_customer_dim
+  name: bauplan__wap_dag
   retry_config: null
-  status: failed
+  status: not_executed
   timeout: null
-  type: data_loader
+  type: custom
   upstream_blocks: []
-  uuid: bauplan_silver__create_customer_dim
+  uuid: bauplan__wap_dag
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
