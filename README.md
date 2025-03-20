@@ -42,3 +42,12 @@ We utilize github actions for execution and leverage concepts such as semantic v
 You can find the relevant article with explanations here: [Substack](https://georgioszefkilis.substack.com/p/devops-for-data-engineers-part-1)
 
 There is no isolated branch for this project since all the code can be found under the ***.github*** folder.
+
+### 4. Bauplan- The Serverless Data Lakehouse: WAP pattern example
+
+In the fourth tutorial we explore the capabilities of Bauplan and compare the solution with what we did in the second tutorial.
+Bauplans wraps iceberg and nessie together providing a very flexible way of building DAGs.
+
+You can find the relevant article with explanations here: [Medium](https://georgioszefkilis.substack.com/p/devops-for-data-engineers-part-1)
+
+The isolated code for that project is here: [Bauplan](https://github.com/georgezefko/mage_projects/tree/feat/bauplan)
