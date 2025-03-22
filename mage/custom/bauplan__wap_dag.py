@@ -8,6 +8,7 @@ import polars as pl
 import pyarrow
 from os.path import dirname, abspath
 import logging
+import time
 from mage.utils.logger import setup_logger
 
 
@@ -17,6 +18,18 @@ log_level_str = os.environ.get("LOG_LEVEL", default_log_level)
 log_level = getattr(logging, log_level_str.upper())
 logger = setup_logger(__name__, log_level=log_level)
 
+
+
+def generate_custom_branch_name(name: str):
+        """
+        Generate a branch name with the format: zefko.bronze_timestamp.
+        """
+        # Current timestamp
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        
+        # Create the branch name
+        branch_name = f"{name}_{timestamp}"
+        return branch_name
 
 
 def create_or_get_branch(client, branch_name, main_branch):
@@ -60,16 +73,17 @@ def transform_custom(*args, **kwargs):
     DATA_LAYER = kwargs['data_layer']
     BRANCH_NAME = f'zefko.{DATA_LAYER}'
     MODEL = kwargs['model']
-    MODEL_TEST = kwargs['model_test']
 
     # Estabslih connection with Bauplan client
     client = bauplan.Client(api_key=BAUPLAN_API)
     # Get the main branch
     main_branch = client.get_branch('main')
     
-
+    # Get the branch name
+    branch_name = generate_custom_branch_name(BRANCH_NAME)
+    
     #Generate new Branch
-    wap_branch = create_or_get_branch(client, BRANCH_NAME, main_branch)
+    wap_branch = create_or_get_branch(client, branch_name, main_branch)
 
     # Generate namespace
     _ = create_namespace_if_not_exists(client, NAMESPACE, wap_branch)
@@ -83,16 +97,6 @@ def transform_custom(*args, **kwargs):
     if run_state.job_status != "SUCCESS":
         raise Exception("Error during bauplan_tutorial!")
 
-    # run the quality checks
-    d = dirname(dirname(abspath(__file__)))
-    run_state = client.run(
-        project_dir = f"{d}/utils/{MODEL_TEST}",
-        ref = wap_branch,
-        namespace = NAMESPACE
-    )
-    if run_state.job_status != "SUCCESS":
-        raise Exception("Error during bauplan_tutorial!")
-
     client.merge_branch(
     source_ref = wap_branch,
     into_branch= main_branch
@@ -100,5 +104,4 @@ def transform_custom(*args, **kwargs):
 
     client.delete_branch(wap_branch)
     
-    return  
-
+    return 

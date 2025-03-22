@@ -28,6 +28,7 @@ def sellers_dim(
     #demo()
     return joined_df
 
+
 # Create customers dimension
 @bauplan.python('3.11', pip={'duckdb': '1.0.0'})
 @bauplan.model(materialization_strategy="REPLACE", name = 'customers_dim')
