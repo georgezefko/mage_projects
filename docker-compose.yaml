@@ -29,6 +29,8 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MAGE_SLACK_WEBHOOK_URL: ${MAGE_SLACK_WEBHOOK_URL}
+      #Bauplan specific
+      BAUPLAN_API: ${BAUPLAN_API}
     networks:
       - nessie_network
   
