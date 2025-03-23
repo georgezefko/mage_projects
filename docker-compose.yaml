@@ -31,12 +31,6 @@ services:
       MAGE_SLACK_WEBHOOK_URL: ${MAGE_SLACK_WEBHOOK_URL}
       #Bauplan specific
       BAUPLAN_API: ${BAUPLAN_API}
-       # EXACT same credentials as used above in mc alias set:
-      AWS_ACCESS_KEY_ID: "zefko"
-      AWS_SECRET_ACCESS_KEY: "sparkTutorial"
-      AWS_DEFAULT_REGION: "us-east-1"
-      # The crucial variable telling PyArrow (and thus Bauplan) to use MinIO, not AWS:
-      ARROW_S3_ENDPOINT: "http://minio:9000"
     networks:
       - nessie_network
   
