@@ -1,3 +1,19 @@
+# [1.2.0](https://github.com/georgezefko/mage_projects/compare/v1.1.4...v1.2.0) (2025-03-23)
+
+
+### Bug Fixes
+
+* added read me ([6d987e6](https://github.com/georgezefko/mage_projects/commit/6d987e6062b308ecced550def5f6bbf6b78e473e))
+* semantic release ([3d98320](https://github.com/georgezefko/mage_projects/commit/3d98320f33c8de1f3f57a409ff35be470917eede))
+
+
+### Features
+
+* added bauplan ([7bbc453](https://github.com/georgezefko/mage_projects/commit/7bbc453b674201dca8e2d749edb6237dea79f012))
+* **bauplan:** added pipeline ([3d1aa9c](https://github.com/georgezefko/mage_projects/commit/3d1aa9c080694d83dd4d9bc948f855fa56d40572))
+* **bauplane:** first test bauplan ([a66b3c7](https://github.com/georgezefko/mage_projects/commit/a66b3c7e01244b7857a890f4639a9dfa6dabf1ce))
+* **pipeline:** bauplan tutorial ([679ecc9](https://github.com/georgezefko/mage_projects/commit/679ecc93e9d7ae1035cec5694eefdc5dd63201f0))
+
 ## [1.1.4](https://github.com/georgezefko/mage_projects/compare/v1.1.3...v1.1.4) (2025-01-10)
 
 
