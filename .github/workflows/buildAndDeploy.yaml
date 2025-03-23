@@ -53,7 +53,7 @@ jobs:
           npx -y -p @semantic-release/git \
                  -p @semantic-release/changelog \
                  -p @semantic-release/exec \
-                 -p semantic-release@19 \
+                 -p semantic-release \
                  semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
