@@ -17,6 +17,6 @@ def transform(messages: List[Dict], *args, **kwargs):
     """
     # Specify your transformation logic here
     for message in messages:
-        print('topic',message['metadata']['topic'])
+        if message['metadata']['topic'] == 'iot-events':
+            return message
 
-    return messages

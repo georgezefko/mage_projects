@@ -3,7 +3,8 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - lambda_batch_ingestion__separate_data
+  - lambda_batch_ingestion__telemetry_data
+  - lambda_batch_ingestion__events_data
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -17,38 +18,60 @@ blocks:
   uuid: lambda_batch_ingestion__get_data
 - all_upstream_blocks_executed: false
   color: null
-  configuration: {}
+  configuration:
+    file_source:
+      path: transformers/lambda_batch_ingestion__telemetry_data.py
   downstream_blocks:
-  - lambda_batch_ingestion__export_bronze
+  - lambda_batch_ingestion__telemetry_bronze
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: lambda_batch_ingestion__separate_data
+  name: lambda_batch_ingestion__telemetry_data
   retry_config: null
   status: updated
   timeout: null
   type: transformer
   upstream_blocks:
   - lambda_batch_ingestion__get_data
-  uuid: lambda_batch_ingestion__separate_data
+  uuid: lambda_batch_ingestion__telemetry_data
 - all_upstream_blocks_executed: false
   color: null
-  configuration: {}
+  configuration:
+    file_source:
+      path: transformers/lambda_batch_ingestion__events_data.py
   downstream_blocks:
-  - brilliant_willow
+  - lambda_batch_ingestion__events_bronze
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: lambda_batch_ingestion__events_data
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - lambda_batch_ingestion__get_data
+  uuid: lambda_batch_ingestion__events_data
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    file_source:
+      path: data_exporters/lambda_batch_ingestion__events_bronze.yaml
+  downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: yaml
-  name: lambda_batch_ingestion__export_bronze
+  name: lambda_batch_ingestion__events_bronze
   retry_config: null
-  status: not_executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - lambda_batch_ingestion__separate_data
-  uuid: lambda_batch_ingestion__export_bronze
+  - lambda_batch_ingestion__events_data
+  uuid: lambda_batch_ingestion__events_bronze
 - all_upstream_blocks_executed: false
   color: null
   configuration: {}
@@ -56,15 +79,15 @@ blocks:
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: python
-  name: brilliant willow
+  language: yaml
+  name: lambda_batch_ingestion__telemetry_bronze
   retry_config: null
-  status: not_executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - lambda_batch_ingestion__export_bronze
-  uuid: brilliant_willow
+  - lambda_batch_ingestion__telemetry_data
+  uuid: lambda_batch_ingestion__telemetry_bronze
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
