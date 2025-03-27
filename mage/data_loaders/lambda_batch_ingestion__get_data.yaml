@@ -1,0 +1,8 @@
+connector_type: kafka
+bootstrap_server: "{{ env_var('KAFKA_BROKERS') }}"
+topics: ['iot-telemetry', 'iot-events']
+include_metadata: false
+api_version: 0.10.2
+consumer_group: 'lambda_batch_ingestion'
+batch_size: 100
+include_metadata: true
