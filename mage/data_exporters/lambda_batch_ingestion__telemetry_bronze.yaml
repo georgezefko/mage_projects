@@ -1,6 +1,0 @@
-connector_type: amazon_s3
-bucket: telemetry-bronze
-prefix: tel
-file_type: parquet
-buffer_size_mb: 5
-buffer_timeout_seconds: 300
