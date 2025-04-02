@@ -11,22 +11,57 @@ import os
 
 # Function to generate fake telemetry data
 def generate_telemetry(device_id):
+    # Base telemetry with slight tendency to degrade over time
+    base_vibration = random.uniform(0.1, 2.0)  # Normal baseline
+    anomaly_chance = random.random()
+    
     return {
         "device_id": device_id,
         "timestamp": datetime.utcnow().isoformat(),
-        "energy_usage": round(random.uniform(0.5, 5.0)),  # Random energy usage in kWh
-        "temperature": round(random.uniform(18.0, 30.0)),  # Random temperature in °C
-        "vibration": round(random.uniform(0.1, 10.0), 1)  # Random vibration in mm/s
+        "energy_usage": round(random.uniform(0.5, 5.0), 2),
+        "temperature": round(random.uniform(18.0, 30.0), 1),
+        "vibration": round(
+            base_vibration + (3.0 if anomaly_chance > 0.95 else 0),  # Occasional spikes
+            1
+        ),
+        "signal_strength": random.randint(70, 100)  # New field for connectivity
     }
 
 # Function to generate fake event data
 def generate_event(device_id):
-    event_types = ["failure", "maintenance"]
-    return {
+    event_type = random.choices(
+        ["failure", "maintenance", "inspection"],
+        weights=[0.1, 0.3, 0.6],  # More inspections, fewer failures
+        k=1
+    )[0]
+    
+    base_event = {
         "device_id": device_id,
         "event_timestamp": datetime.utcnow().isoformat(),
-        "event_type": random.choice(event_types)
+        "event_type": event_type,
+        "severity": random.choice(["low", "medium", "high"])
     }
+    
+    # Type-specific fields
+    if event_type == "failure":
+        base_event.update({
+            "error_code": f"ERR{random.randint(1000, 1999)}",
+            "component": random.choice(["motor", "bearing", "sensor", "battery"]),
+            "root_cause": random.choice(["overheating", "wear", "power_surge", "unknown"])
+        })
+    elif event_type == "maintenance":
+        base_event.update({
+            "technician": f"tech-{random.randint(1, 20)}",
+            "duration_min": random.randint(15, 240),
+            "parts_replaced": random.choice([None, "bearing", "filter", "battery"])
+        })
+    else:  # inspection
+        base_event.update({
+            "status": random.choice(["passed", "passed", "failed"]),  # 2:1 pass ratio
+            "next_inspection_days": random.randint(7, 30)
+        })
+    
+    return base_event
 
 # Function to deliver reports (callback)
 def delivery_report(err, msg):
