@@ -100,7 +100,6 @@ services:
       - nessie.catalog.service.s3.default-options.access-key.name=${MINIO_ACCESS_KEY}
       - nessie.catalog.service.s3.default-options.access-key.secret=${MINIO_SECRET_KEY}
       - nessie.catalog.service.s3.default-options.endpoint=http://minio:9000/
-
     networks:
       - nessie_network
     

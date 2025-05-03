@@ -2,11 +2,9 @@ if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
-from mage.utils.spark_session_factory import get_spark_session
-from pyspark.sql.functions import *
-from pyspark.sql.window import Window
+
+import polars as pl
+from polars import col 
 import os
 
 
@@ -25,39 +23,53 @@ def transform(data, *args, **kwargs):
     Returns:
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
-    # Specify your transformation logic here
-    path_json = '/home/src/mage_data/mage/pipelines/lambda_silver/.variables/lambda_silver__get_data_minio/output_1/resource_usage.json'
-    if os.path.exists(path_json):
-        os.remove(path_json)
+    
+   
     bronze_telemetry = data[1] #based on the output from previous block
-    print('bronze_telemtry', bronze_telemetry.show())
+    print(bronze_telemetry.dtypes)
+    bronze_telemetry = bronze_telemetry.with_columns(
+        pl.col("timestamp").str.to_datetime()  # Convert string to datetime
+    )
+
     # Transformations
-    silver_telemetry = bronze_telemetry.filter(
-        (col("energy_usage").between(0.1, 20.0)) &  # Wider range to catch anomalies
-        (col("temperature").between(-10, 100)) &    # Account for extreme environments
-        (col("vibration") >= 0)                     # No negative vibrations
-    ).withColumn(
-        "status",
-        when(
-            (col("vibration") > 5) | 
-            (col("temperature") > 28) |
-            (col("signal_strength") < 75),  # New field from generator
-            lit("warning")
-        ).otherwise(lit("normal"))
-    ).withColumn(
-        "is_anomaly",
-        col("status") != "normal"
-    ).withColumn(
-        "rolling_5min_energy",
-        avg(col("energy_usage")).over(
-            Window.partitionBy("device_id")
-                .orderBy(col("timestamp").cast("long"))
-                .rangeBetween(-300, 0)  # 5-minute window
+    silver_telemetry = (
+        bronze_telemetry.filter(
+            (col("energy_usage").is_between(0.1, 20.0)) &  # Wider range to catch anomalies
+            (col("temperature").is_between(-10, 100)) &    # Account for extreme environments
+            (col("vibration") >= 0)                       # No negative vibrations
         )
-    ).withColumn(
-        "data_quality",
-        when(col("signal_strength") < 70, "low")
-        .otherwise("high")
+        .with_columns(
+            pl.when(
+                (col("vibration") > 5) | 
+                (col("temperature") > 28) |
+                (col("signal_strength") < 75)  # New field from generator
+            )
+            .then(pl.lit("warning"))
+            .otherwise(pl.lit("normal"))
+            .alias("status")
+        )
+        .with_columns(
+            (col("status") != "normal").alias("is_anomaly")
+        )
+        # Group by device_id first, then calculate rolling mean within each group
+        .group_by("device_id", maintain_order=True)
+        .agg(
+            pl.all().exclude("rolling_5min_energy"),
+            pl.col("energy_usage")
+            .rolling_mean(
+                window_size="300s",
+                by="timestamp",
+                closed="both"
+            )
+            .alias("rolling_5min_energy")
+        )
+        .explode(pl.all().exclude("device_id"))
+        .with_columns(
+            pl.when(col("signal_strength") < 70)
+            .then(pl.lit("low"))
+            .otherwise(pl.lit("high"))
+            .alias("data_quality")
+        )
     )
     return silver_telemetry
 
