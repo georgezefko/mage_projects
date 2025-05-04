@@ -68,7 +68,7 @@ def write_data(data, NAMESPACE, table_manager, tbl_name, BUCKET_NAME):
 
 
 @data_exporter
-def export_data(data, *args, **kwargs):
+def export_data(device_health, failure_prediction, maint_schedule, *args, **kwargs):
     """
     Exports data to some source.
 
@@ -82,12 +82,16 @@ def export_data(data, *args, **kwargs):
     """
     # Specify your data exporting logic here
     BUCKET_NAME = "iot-silver"
-    NAMESPACE = "telemetry"
-    TABLE_NAME = "telemetry_silver"
+    NAMESPACE = "iot-gold"
  
     table_manager = IcebergTableManager(catalog_type='nessie')
 
 
-    _ = write_data(data, NAMESPACE,  table_manager, 'telemetry_silver', BUCKET_NAME)
+    _ = write_data(device_health, NAMESPACE,  table_manager, 'gold_device_health', BUCKET_NAME)
+    
+    _ = write_data(failure_prediction, NAMESPACE,  table_manager, 'gold_failure_prediction', BUCKET_NAME)
+
+    _ = write_data(maint_schedule, NAMESPACE,  table_manager, 'gold_maintenance_schedule', BUCKET_NAME)
+
     
     

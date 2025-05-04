@@ -100,7 +100,11 @@ class IcebergTableManager:
 
         fields = []
         for col, dtype in polars_schema.items():
-            if dtype in schema_map:
+            if isinstance(dtype, pl.List):
+                inner = dtype.inner
+                pa_inner = schema_map.get(inner, pa.string())
+                fields.append(pa.field(col, pa.list_(pa_inner)))
+            elif dtype in schema_map:
                 fields.append(pa.field(col, schema_map[dtype]))
             else:
                 fields.append(pa.field(col, pa.string()))  # Default to string if type not found
@@ -116,9 +120,12 @@ class IcebergTableManager:
             col_name = field.name
             polars_series = df[col_name]
             arrow_type = field.type
+
+            if pa.types.is_list(arrow_type):
+                arrow_array = pa.array(polars_series.to_list(), type=arrow_type)
             
             # Special handling for datetime types
-            if isinstance(arrow_type, pa.TimestampType):
+            elif isinstance(arrow_type, pa.TimestampType):
                 # Convert Polars datetime to Arrow timestamp
                 arrow_array = pa.array(
                     polars_series.cast(pl.Int64),  # Convert to nanoseconds
