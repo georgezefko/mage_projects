@@ -20,7 +20,8 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - lambda_silver__export_telemetry
+  - lambda_batch__gold_device_health
+  - lambda_batch__gold_failure_prediction
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -36,7 +37,8 @@ blocks:
 - all_upstream_blocks_executed: true
   color: null
   configuration: {}
-  downstream_blocks: []
+  downstream_blocks:
+  - lambda_batch__gold_device_health
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -49,7 +51,7 @@ blocks:
   upstream_blocks:
   - lambda_silver__get_data_minio
   uuid: lambda_silver__enrich_events
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks: []
@@ -63,8 +65,68 @@ blocks:
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - lambda_silver__enrich_telemetry
+  - lambda_batch__gold_device_health
+  - lambda_batch__gold_failure_prediction
+  - lambda_batch__gold_maintenace_schedule
   uuid: lambda_silver__export_telemetry
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - lambda_batch__gold_failure_prediction
+  - lambda_batch__gold_maintenace_schedule
+  - lambda_silver__export_telemetry
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: lambda_batch__gold_device_health
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - lambda_silver__enrich_telemetry
+  - lambda_silver__enrich_events
+  uuid: lambda_batch__gold_device_health
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - lambda_batch__gold_maintenace_schedule
+  - lambda_silver__export_telemetry
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: lambda_batch__gold_failure_prediction
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - lambda_batch__gold_device_health
+  - lambda_batch__gold_device_health
+  - lambda_silver__enrich_telemetry
+  uuid: lambda_batch__gold_failure_prediction
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - lambda_silver__export_telemetry
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: lambda_batch__gold_maintenace_schedule
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - lambda_batch__gold_failure_prediction
+  - lambda_batch__gold_device_health
+  uuid: lambda_batch__gold_maintenace_schedule
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

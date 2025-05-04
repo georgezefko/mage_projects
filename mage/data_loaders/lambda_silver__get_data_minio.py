@@ -14,7 +14,7 @@ MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
 MINIO_ENDPOINT = 'http://minio:9000'
 EVENTS_SCHEMA: dict[str, pl.DataType] = {
     "device_id": pl.Utf8,
-    "event_timestamp": pl.Utf8,  # We'll convert to datetime later
+    "event_timestamp": pl.Utf8,
     "event_type": pl.Utf8,
     "severity": pl.Utf8,
     "error_code": pl.Utf8,

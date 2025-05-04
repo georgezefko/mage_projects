@@ -25,49 +25,24 @@ def transform(data, *args, **kwargs):
     # Specify your transformation logic here
   
     bronze_events = data[0] #based on the output from previous block
- 
-    filter_ = bronze_events.filter(col("event_type") == "failure")
 
     # Main transformations
-    silver_events = (
-        bronze_events
-        .with_columns(
-            # Create struct for event metadata
-            pl.struct(
-                ["error_code", "component", "root_cause", "technician", "parts_replaced"]
-            ).alias("event_metadata"),
-            
-            # Conditional duration_minutes
-            pl.when(col("event_type") == "maintenance")
-            .then(col("duration_min"))
-            .otherwise(None)
-            .alias("duration_minutes"),
-            
-            # Boolean is_critical column
-            (col("severity") == "high").alias("is_critical"),
-            
-            # Conditional maintenance_type
-            pl.when(col("event_type") == "maintenance")
-            .then(pl.lit("routine"))
-            .otherwise(None)
-            .alias("maintenance_type")
-        )
-        .drop("duration_min")  # Remove old column
-    )
+    
+    silver_events = bronze_events.with_columns([
+    pl.col("event_timestamp").dt.date().alias("event_date"),
+    (pl.col("event_type") == "failure").alias("is_failure"),
+    (pl.col("event_type") == "maintenance").alias("is_maintenance"),
+    pl.col("event_timestamp")
+        .sort()
+        .over("device_id")
+        .diff()
+        .dt.days()  # Use .days() instead of .total_days()
+        .fill_null(0)
+        .cast(pl.Int64)
+        .alias("days_since_last_event")
+    ])
 
-    # Handle inspection events
-    inspections = (
-        silver_events
-        .filter(col("event_type") == "inspection")
-        .select(
-            "device_id",
-            "event_timestamp",
-            pl.col("status").alias("inspection_result"),
-            "next_inspection_days"
-        )
-    )
-
-    return silver_events, inspections
+    return silver_events
 
 
 @test

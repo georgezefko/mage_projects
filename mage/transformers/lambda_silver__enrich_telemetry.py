@@ -6,6 +6,7 @@ if 'test' not in globals():
 import polars as pl
 from polars import col 
 import os
+from datetime import datetime, timedelta 
 
 
 @transformer
@@ -27,50 +28,27 @@ def transform(data, *args, **kwargs):
    
     bronze_telemetry = data[1] #based on the output from previous block
     print(bronze_telemetry.dtypes)
-    bronze_telemetry = bronze_telemetry.with_columns(
-        pl.col("timestamp").str.to_datetime()  # Convert string to datetime
-    )
+    #bronze_telemetry = bronze_telemetry.with_columns(
+    #    pl.col("timestamp").str.to_datetime()  # Convert string to datetime
+    #)
+    # Define device-specific windows
+    silver_telemetry = bronze_telemetry.with_columns([
+    pl.col("timestamp").str.to_datetime().alias("timestamp"),
 
-    # Transformations
-    silver_telemetry = (
-        bronze_telemetry.filter(
-            (col("energy_usage").is_between(0.1, 20.0)) &  # Wider range to catch anomalies
-            (col("temperature").is_between(-10, 100)) &    # Account for extreme environments
-            (col("vibration") >= 0)                       # No negative vibrations
-        )
-        .with_columns(
-            pl.when(
-                (col("vibration") > 5) | 
-                (col("temperature") > 28) |
-                (col("signal_strength") < 75)  # New field from generator
-            )
-            .then(pl.lit("warning"))
-            .otherwise(pl.lit("normal"))
-            .alias("status")
-        )
-        .with_columns(
-            (col("status") != "normal").alias("is_anomaly")
-        )
-        # Group by device_id first, then calculate rolling mean within each group
-        .group_by("device_id", maintain_order=True)
-        .agg(
-            pl.all().exclude("rolling_5min_energy"),
-            pl.col("energy_usage")
-            .rolling_mean(
-                window_size="300s",
-                by="timestamp",
-                closed="both"
-            )
-            .alias("rolling_5min_energy")
-        )
-        .explode(pl.all().exclude("device_id"))
-        .with_columns(
-            pl.when(col("signal_strength") < 70)
-            .then(pl.lit("low"))
-            .otherwise(pl.lit("high"))
-            .alias("data_quality")
-        )
-    )
+    # derive date & hour directly from the converted expression
+    pl.col("timestamp").str.to_datetime().dt.date().alias("date"),
+    pl.col("timestamp").str.to_datetime().dt.hour().alias("hour"),
+
+    (pl.col("vibration") > 3.0).alias("is_vibration_anomaly"),
+    (pl.col("temperature") > pl.col("temperature").mean() + 2*pl.col("temperature").std()).alias("is_temp_anomaly"),
+    (pl.col("energy_usage") > pl.col("energy_usage").mean() + 2*pl.col("energy_usage").std()).alias("is_energy_spike"),
+
+    (
+        0.4 * (1 - pl.col("temperature")/30)
+        + 0.3 * (1 - pl.col("vibration")/5)
+        + 0.3 * (pl.col("signal_strength")/100)
+    ).round(2).alias("composite_health_score"),
+    ])
     return silver_telemetry
 
 
