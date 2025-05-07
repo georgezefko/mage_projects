@@ -30,7 +30,7 @@ def data_quality_check(table):
             return True
 
 
-def write_data(data, NAMESPACE, table_manager, tbl_name, BUCKET_NAME):
+def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, BUCKET_NAME):
     
     table_name = tbl_name
     schema = data.schema
@@ -53,9 +53,18 @@ def write_data(data, NAMESPACE, table_manager, tbl_name, BUCKET_NAME):
         f"s3a://{BUCKET_NAME}/{NAMESPACE}"
     )
    
+    wap_branch_name = branch_manager.generate_custom_branch_name(table_name, NAMESPACE)
+    wap_branch = branch_manager.create_branch(wap_branch_name)
+
+
+    # Merge from main branch to ensure the table exists on the new branch
+    #branch_manager.merge_branch(from_branch=wap_branch, to_branch=new_branch_name)
+
+    # Reinitialize catalog for the specific branch
+    new_catalog = table_manager.initialize_catalog(wap_branch)
     # Load the table
     table_identifier = f"{NAMESPACE}.{table_name}"
-    _table = catalog.load_table(table_identifier)
+    _table = new_catalog.load_table(table_identifier)
 
     # Append the Arrow table data to the Iceberg table
     _table.append(arrow_table)
@@ -63,8 +72,12 @@ def write_data(data, NAMESPACE, table_manager, tbl_name, BUCKET_NAME):
     # Run data quality check
     _pass = data_quality_check(_table)
    
-    if not _pass:
-        raise ValueError(f"Failed to pass quality tests for table {table_name}")
+    if _pass:
+        branch_manager.merge_branch(from_branch=wap_branch)
+        branch_manager.delete_branch(wap_branch)
+
+    else:
+        raise ValueError(f"Failed to pass quality tests for table {table_name} and branch {new_branch_name}")
 
 
 @data_exporter
@@ -81,17 +94,18 @@ def export_data(device_health, failure_prediction, maint_schedule, *args, **kwar
         displayed when inspecting the block run.
     """
     # Specify your data exporting logic here
-    BUCKET_NAME = "iot-silver"
-    NAMESPACE = "iot-gold"
+    BUCKET_NAME = "iceberg-demo-nessie"
+    NAMESPACE = "iot"
  
     table_manager = IcebergTableManager(catalog_type='nessie')
+    branch_manager = NessieBranchManager()
 
 
-    _ = write_data(device_health, NAMESPACE,  table_manager, 'gold_device_health', BUCKET_NAME)
+    _ = write_data(device_health, NAMESPACE, branch_manager,  table_manager, 'gold_device_health', BUCKET_NAME)
     
-    _ = write_data(failure_prediction, NAMESPACE,  table_manager, 'gold_failure_prediction', BUCKET_NAME)
+    _ = write_data(failure_prediction, NAMESPACE, branch_manager, table_manager, 'gold_failure_prediction', BUCKET_NAME)
 
-    _ = write_data(maint_schedule, NAMESPACE,  table_manager, 'gold_maintenance_schedule', BUCKET_NAME)
+    _ = write_data(maint_schedule, NAMESPACE, branch_manager, table_manager, 'gold_maintenance_schedule', BUCKET_NAME)
 
     
     
