@@ -24,56 +24,39 @@ AS
 SELECT 
     b.device_id,
     b.date,
-    -- Available batch metrics from gold_device_health
     b.min_health_score AS health_score,
     b.days_since_maintenance,
-    -- Streaming metrics
-    COALESCE(s.unconfirmed_count, 0) AS pending_anomalies,
-    COALESCE(s.high_severity_count, 0) AS urgent_anomalies,
-    -- Revised combined score using available columns
+    
+    -- Streaming metrics directly from anomalies_streaming
+    COUNT_IF(s.is_confirmed = FALSE) AS pending_anomalies,
+    COUNT_IF(s.is_confirmed = FALSE AND s.severity = 'high') AS urgent_anomalies,
+
+    -- Criticality Score
     ROUND(
-        ((1 - b.min_health_score) * 0.6) +  -- Inverse since lower health_score = worse
-        (LEAST(s.unconfirmed_count, 10)/10.0 * 0.3) +
+        ((1 - b.min_health_score) * 0.6) +
+        (LEAST(COUNT_IF(s.is_confirmed = FALSE), 10)/10.0 * 0.3) +
         (CASE WHEN b.days_since_maintenance > 90 THEN 0.1 ELSE 0 END),
     2) AS criticality_score,
-    -- Derived priority based on existing data
+
+    -- Priority logic
     CASE
         WHEN (1 - b.min_health_score) > 0.7 OR b.days_since_maintenance > 120 THEN 'P0'
         WHEN (1 - b.min_health_score) > 0.5 OR b.days_since_maintenance > 90 THEN 'P1'
         WHEN b.vibration_anomalies > 5 OR b.temp_anomalies > 3 THEN 'P2'
         ELSE 'P3'
     END AS priority
+
 FROM 
     iceberg_catalog_iot_gold.iot.gold_device_health b
-LEFT JOIN (
-    SELECT 
-        device_id,
-        DATE_TRUNC('day', hour_bucket) AS date,
-        SUM(unconfirmed_count) AS unconfirmed_count,
-        SUM(high_severity_count) AS high_severity_count
-    FROM 
-        anomaly_rollup
-    GROUP BY 
-        1, 2
-) s ON b.device_id = s.device_id AND b.date = s.date;
+LEFT JOIN 
+    anomalies_streaming s
+    ON b.device_id = s.device_id 
+    AND DATE_TRUNC('day', s.timestamp) = b.date
 
-
--- Real-time Anomaly Status
-SELECT 
-    a.device_id,
-    h.priority,
-    COUNT(a.anomaly_type) AS new_anomalies,
-    ARRAY_JOIN(ARRAY_AGG(DISTINCT a.anomaly_type), ', ') AS anomaly_types
-FROM 
-    anomalies_streaming a
-JOIN 
-    unified_device_health h ON a.device_id = h.device_id
-WHERE 
-    a.timestamp >= NOW() - INTERVAL '1 HOUR'
-    AND h.date = CURRENT_DATE()
 GROUP BY 
-    1, 2
-ORDER BY 
-    h.priority, 
-    COUNT(a.anomaly_type) DESC
-LIMIT 20;
+    b.device_id,
+    b.date,
+    b.min_health_score,
+    b.days_since_maintenance,
+    b.vibration_anomalies,
+    b.temp_anomalies;

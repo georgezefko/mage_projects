@@ -1,4 +1,4 @@
-FROM mageai/mageai:0.9.75
+FROM mageai/mageai:0.9.76
 
 
 ARG PROJECT_NAME=mage
