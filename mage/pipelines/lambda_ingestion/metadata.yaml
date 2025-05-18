@@ -3,38 +3,38 @@ blocks:
   color: null
   configuration:
     file_source:
-      path: data_loaders/lambda_bronze__consumer.yaml
+      path: data_loaders/lambda_ingestion__consumer.yaml
   downstream_blocks:
-  - lambda_bronze__ingestion_logic
+  - lambda_ingestion__ingestion_logic
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: yaml
-  name: lambda_bronze__consumer
+  name: lambda_ingestion__consumer
   retry_config: null
   status: not_executed
   timeout: null
   type: data_loader
   upstream_blocks: []
-  uuid: lambda_bronze__consumer
+  uuid: lambda_ingestion__consumer
 - all_upstream_blocks_executed: false
   color: null
   configuration:
     file_source:
-      path: transformers/lambda_bronze__ingestion_logic.py
+      path: transformers/lambda_ingestion__ingestion_logic.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: lambda_bronze__ingestion_logic
+  name: lambda_ingestion__ingestion_logic
   retry_config: null
   status: not_executed
   timeout: null
   type: transformer
   upstream_blocks:
-  - lambda_bronze__consumer
-  uuid: lambda_bronze__ingestion_logic
+  - lambda_ingestion__consumer
+  uuid: lambda_ingestion__ingestion_logic
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -46,7 +46,7 @@ executor_config: {}
 executor_count: 1
 executor_type: null
 extensions: {}
-name: lambda_bronze
+name: lambda_ingestion
 notification_config: {}
 remote_variables_dir: null
 retry_config: {}
@@ -54,9 +54,13 @@ run_pipeline_in_one_process: false
 settings:
   triggers: null
 spark_config: {}
-tags: []
+tags:
+- IoT
+- Ingestion
+- Bronze
+- streaming
 type: streaming
-uuid: lambda_bronze
+uuid: lambda_ingestion
 variables:
   events_bucket: events-bronze
   telemetry_bucket: telemetry-bronze
