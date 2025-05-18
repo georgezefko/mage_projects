@@ -42,3 +42,12 @@ We utilize github actions for execution and leverage concepts such as semantic v
 You can find the relevant article with explanations here: [Substack](https://georgioszefkilis.substack.com/p/devops-for-data-engineers-part-1)
 
 There is no isolated branch for this project since all the code can be found under the ***.github*** folder.
+
+
+### 4. Mastering Lambda Architecture: Building End-to-End IoT Pipelines (With StarRocks, Iceberg, and Kafka)
+
+In the fourth tutorial we dive into Lambda Architecture components with a hands-on tutorial on a IoT use case
+
+You can find the relevant article with explanations here: [Medium]()
+
+The isolated code for that project is here: [Lambda](https://github.com/georgezefko/mage_projects/tree/feat/lambda)
