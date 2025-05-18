@@ -3,8 +3,8 @@ simplejson==3.11.1
 confluent-kafka
 fastavro
 avro-python3
-starrocks
-quixstreams
+starrocks>=1.1.0
+#quixstreams
 #pyspark==3.4.0
 minio
 #delta-spark==2.4.0
