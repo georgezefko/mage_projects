@@ -44,10 +44,10 @@ You can find the relevant article with explanations here: [Substack](https://geo
 There is no isolated branch for this project since all the code can be found under the ***.github*** folder.
 
 
-### 4. Mastering Lambda Architecture: Building End-to-End IoT Pipelines (With StarRocks, Iceberg, and Kafka)
+### 4. Lambda Architecture in Action — From Sensors to Dashboards with Kafka, Iceberg, Nessie, StarRocks, Minio, Mage, and Docker
 
-In the fourth tutorial we dive into Lambda Architecture components with a hands-on tutorial on a IoT use case
+In the fourth tutorial we dive into Lambda Architecture components with a hands-on tutorial on an IoT use case.
 
-You can find the relevant article with explanations here: [Medium]()
+You can find the relevant article with explanations here: [Medium](https://medium.com/data-engineer-things/lambda-architecture-in-action-from-sensors-to-dashboards-with-kafka-iceberg-nessie-starrocks-3ae9a4c1c605)
 
 The isolated code for that project is here: [Lambda](https://github.com/georgezefko/mage_projects/tree/feat/lambda)
