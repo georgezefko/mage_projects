@@ -70,7 +70,7 @@ def write_data(data, NAMESPACE, branch_manager, table_manager, tbl_name, silver_
         branch_manager.delete_branch(new_branch_name)
 
     else:
-        raise ValueError(f"Failed to pass quality tests for table {table_name} and branch {new_cr_branch}")
+        raise ValueError(f"Failed to pass quality tests for table {table_name} and branch {new_branch_name}")
 
 
 

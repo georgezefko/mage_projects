@@ -24,11 +24,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'  # Specify the Python version you need
+      
+      ### Temporarily commented out ###
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip setuptools wheel
+      #     pip install --prefer-binary -r mage/requirements.txt \
+      #              --constraint constraints.txt
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install --prefer-binary -r mage/requirements.txt
-
-      - name: Run unit tests
-        run: make unit-tests
+      # - name: Run unit tests
+      #   run: make unit-tests

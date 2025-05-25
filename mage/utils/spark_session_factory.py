@@ -67,8 +67,9 @@ class NessieIcebergSparkSession:
             "hadoop-aws-3.3.4",
             'org.apache.iceberg:iceberg-spark-runtime-3.5_2.12-1.5.2',
             'aws-java-sdk-bundle-1.12.262',
-            'nessie-spark-extensions-3.5_2.12-0.91.3',
+            'nessie-spark-extensions-3.5_2.12-0.91.1',
             'url-connection-client-2.26.15'
+            #'url-connection-client-2.20.18'
         ]
 
         builder = SparkSession.builder.appName(self.app_name) \
@@ -85,7 +86,8 @@ class NessieIcebergSparkSession:
             .config("spark.sql.catalog.nessie.warehouse", self.warehouse_path) \
             .config("spark.sql.catalog.nessie.io-impl", "org.apache.iceberg.aws.s3.S3FileIO") \
             .config("spark.ui.port", "4050")\
-            .config("spark.hadoop.fs.s3a.region", self.aws_region)
+            .config("spark.hadoop.fs.s3a.region", self.aws_region)\
+            .config('spark.sql.files.ignoreCorruptFiles', 'true')
 
 
         return builder.getOrCreate()

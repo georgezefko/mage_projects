@@ -1,0 +1,7 @@
+# Stop pip from back-tracking into ancient wheels
+PyYAML>=6.0            # latest major, manylinux wheels start here – avoids 5.1.*
+pyasn1>=0.5.1          # good floor, released Feb 2024
+pyasn1-modules>=0.4.0  # pairs with pyasn1 0.5+; released Dec 2024
+# NEW – plug the remaining holes
+referencing>=0.34.0  # current series, wheels only
+py>=1.10.0           # drops <1.10 where manylinux wheels are missing

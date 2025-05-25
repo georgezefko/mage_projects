@@ -102,7 +102,6 @@ services:
       - nessie.catalog.service.s3.default-options.access-key.name=${MINIO_ACCESS_KEY}
       - nessie.catalog.service.s3.default-options.access-key.secret=${MINIO_SECRET_KEY}
       - nessie.catalog.service.s3.default-options.endpoint=http://minio:9000/
-
     networks:
       - nessie_network
     
@@ -185,6 +184,25 @@ services:
       - singleton_be0_data:/opt/starrocks/be/storage
     networks:
       - nessie_network
+  superset:
+    image: apache/superset:latest
+    container_name: superset
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=12345ab@
+      - SUPERSET_DATABASE_URI=sqlite:////app/superset_home/superset.db
+    volumes:
+      - superset_home:/app/superset_home
+      - ./superset_config.py:/app/pythonpath/superset_config.py
+    command: >
+      /bin/sh -c "superset db upgrade &&
+      superset fab create-admin --username admin --firstname Superset --lastname Admin --password admin --email admin@superset.com &&
+      superset init &&
+      superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger"
+    restart: unless-stopped
+    networks:
+      - nessie_network
 
 networks:
   nessie_network:
@@ -194,3 +212,4 @@ volumes:
   minio_data:
   singleton_fe0_data:
   singleton_be0_data:
+  superset_home:
