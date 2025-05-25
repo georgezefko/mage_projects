@@ -1,3 +1,20 @@
+# [1.3.0](https://github.com/georgezefko/mage_projects/compare/v1.2.0...v1.3.0) (2025-05-25)
+
+
+### Bug Fixes
+
+* added batch bronze ([e2ac456](https://github.com/georgezefko/mage_projects/commit/e2ac4568814eb6131d8d1e207a506ce6c595f7c8))
+* **ci-cd:** deactivate tests ([8f36759](https://github.com/georgezefko/mage_projects/commit/8f36759fb022048126b7746f319c849402e750b9))
+* **ci:** added constraints.txt ([ce6f07b](https://github.com/georgezefko/mage_projects/commit/ce6f07b0c2e2ed4b982f2ac4cbf5f1ca3735c670))
+* finished streaming mage ([a67f213](https://github.com/georgezefko/mage_projects/commit/a67f213fcd50898ada049cbe9beb283ca6e5bb0a))
+* iceberg manager ([00d4d2d](https://github.com/georgezefko/mage_projects/commit/00d4d2d91462b28d97d30461eda25b4a04985c04))
+* renamed pipelines ([1c63639](https://github.com/georgezefko/mage_projects/commit/1c63639392aa4df89ffcc69f44d4eef666b5a7cc))
+
+
+### Features
+
+* added lambda streaming ([2adf1d4](https://github.com/georgezefko/mage_projects/commit/2adf1d43f1f7a15c9a4ee58c502e8387115e0023))
+
 # [1.2.0](https://github.com/georgezefko/mage_projects/compare/v1.1.4...v1.2.0) (2025-03-23)
 
 
