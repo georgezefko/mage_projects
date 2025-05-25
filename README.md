@@ -43,10 +43,23 @@ You can find the relevant article with explanations here: [Substack](https://geo
 
 There is no isolated branch for this project since all the code can be found under the ***.github*** folder.
 
+### 4. Bauplan- The Serverless Data Lakehouse: WAP pattern example
 
-### 4. Lambda Architecture in Action — From Sensors to Dashboards with Kafka, Iceberg, Nessie, StarRocks, Minio, Mage, and Docker
+In the fourth tutorial we explore the capabilities of Bauplan and compare the solution with what we did in the second tutorial.
+Bauplans wraps iceberg and nessie together providing a very flexible way of building DAGs.
 
-In the fourth tutorial we dive into Lambda Architecture components with a hands-on tutorial on an IoT use case.
+You can find the relevant article with explanations here: [Medium](https://medium.com/data-engineer-things/bauplan-the-serverless-data-lakehouse-wap-pattern-example-a199d8959330)
+
+The isolated code for that project is here: [Bauplan](https://github.com/georgezefko/mage_projects/tree/feat/bauplan)
+
+Files to check for this project are:
+- custom/bauplan__wap_dag.py
+- utils/bauplan_silver
+- utils/bauplan_gold
+
+### 5. Lambda Architecture in Action — From Sensors to Dashboards with Kafka, Iceberg, Nessie, StarRocks, Minio, Mage, and Docker
+
+In the fifth tutorial we dive into Lambda Architecture components with a hands-on tutorial on an IoT use case.
 
 You can find the relevant article with explanations here: [Medium](https://medium.com/data-engineer-things/lambda-architecture-in-action-from-sensors-to-dashboards-with-kafka-iceberg-nessie-starrocks-3ae9a4c1c605)
 
