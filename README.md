@@ -64,3 +64,4 @@ In the fifth tutorial we dive into Lambda Architecture components with a hands-o
 You can find the relevant article with explanations here: [Medium](https://medium.com/data-engineer-things/lambda-architecture-in-action-from-sensors-to-dashboards-with-kafka-iceberg-nessie-starrocks-3ae9a4c1c605)
 
 The isolated code for that project is here: [Lambda](https://github.com/georgezefko/mage_projects/tree/feat/lambda)
+
