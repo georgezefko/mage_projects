@@ -1,0 +1,8 @@
+connector_type: postgres
+database: mage
+host: "{{ env_var('POSTGRES_HOST') }}"
+password: "{{ env_var('POSTGRES_PASSWORD') }}"
+port: 5432
+schema: public
+username: "{{ env_var('POSTGRES_USER') }}"
+table: telemetry
