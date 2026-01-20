@@ -13,6 +13,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
       ENV: ${ENV}
       LOG_LEVEL: ${LOG_LEVEL}
       KAFKA_SCHEMA_REGISTRY: ${KAFKA_SCHEMA_REGISTRY}
@@ -34,6 +35,25 @@ services:
     networks:
       - nessie_network
   
+  postgres:
+    container_name: postgres
+    image: postgres:14
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: mage
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      - nessie_network
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
@@ -213,3 +233,4 @@ volumes:
   singleton_fe0_data:
   singleton_be0_data:
   superset_home:
+  postgres-data:
