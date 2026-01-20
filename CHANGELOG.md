@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/georgezefko/mage_projects/compare/v1.3.0...v1.4.0) (2026-01-20)
+
+
+### Features
+
+* **pipelines:** added postgres and demo pipeline ([1744232](https://github.com/georgezefko/mage_projects/commit/1744232989da5739ef357b01b46f0c2f209c6bd6))
+
 # [1.3.0](https://github.com/georgezefko/mage_projects/compare/v1.2.0...v1.3.0) (2025-05-25)
 
 
